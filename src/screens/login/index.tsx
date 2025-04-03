@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
 import React, {useState} from 'react';
 import {
@@ -7,6 +8,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert,
 } from 'react-native';
 
 // Định nghĩa loại đối tượng navigation
@@ -23,6 +25,7 @@ type LoginScreenNavigationProp = StackNavigationProp<
 interface LoginScreenProps {
   navigation: LoginScreenNavigationProp;
 }
+
 // Định nghĩa kiểu cho props của component
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
@@ -30,12 +33,44 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [password, setPassword] = useState<string>('');
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
 
-  const handleLogin = () => {
-    // TODO: Call API login ở đây
-    console.log('Username:', username);
-    console.log('Password:', password);
+  const handleLogin = async () => {
+    if (!username || !password) {
+      Alert.alert('Erro', 'Please enter both username and password');
+      return;
+    }
 
-    navigation.navigate('WorkOrder');
+    try {
+      // TODO: Call API login ở đây
+      const response = await fetch(
+        'http://pos.foxai.com.vn:8123/api/Auth/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username,
+            password,
+          }),
+        },
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        //Login Successful, save token into AsyncStorage
+        await AsyncStorage.setItem('userToken', data.accessToken);
+        console.log('Login successful:', data.accessToken);
+
+        // Navigation
+        navigation.navigate('WorkOrder');
+      } else {
+        //Login Fail
+        Alert.alert('Error', data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Error logging in:', error);
+      Alert.alert('Error', 'Something went wrong. Please try again later.');
+    }
   };
 
   const togglePasswordVisibility = () => {
