@@ -16,6 +16,7 @@ import {
 type RootStackParamList = {
   Login: undefined;
   WorkOrder: undefined;
+  Menu: undefined;
 };
 
 type WorkOrderScreenNavigationProp = StackNavigationProp<
@@ -39,6 +40,11 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
     }
   };
 
+  // Menu event
+  const handleMenu = async () => {
+    navigation.navigate('Menu');
+  };
+
   type selectedItem = {
     productCode: string;
     itemCode: string;
@@ -47,10 +53,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
 
   const [data, setData] = useState<any[]>([]);
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
-  //         productCode: item.proCode,
-  // itemCode: item.itemCode,
-  //  itemName: item.itemName,
-
   const [loading, setLoading] = useState(true);
 
   console.log({data, selected});
@@ -158,9 +160,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
         </View>
       </View>
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('Xac Nhan')}>
+        <TouchableOpacity style={styles.button} onPress={handleMenu}>
           <Text style={styles.buttonText}>Xác nhận</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={handleLogout}>
