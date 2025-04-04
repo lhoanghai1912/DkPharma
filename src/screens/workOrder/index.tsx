@@ -1,7 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 
 import {
@@ -29,8 +28,6 @@ interface WorkOrderScreenProps {
 }
 
 const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
-  const [selected, setSelected] = useState('');
-
   // Logout event
   const handleLogout = async () => {
     try {
@@ -42,15 +39,66 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
     }
   };
 
-  const data = [
-    {key: '1', value: 'Mobiles', value1: 'Android'},
-    {key: '2', value: 'Appliances', value1: 'Apple'},
-    {key: '3', value: 'Vegetables', value1: 'a'},
-    {key: '4', value: 'Diary Products', value1: 'b'},
-    {key: '5', value: 'Drinks', value1: 'c'},
-    {key: '6', value: 'Cameras', value1: 'd'},
-    {key: '7', value: 'Computers', value1: 'e'},
-  ];
+  type selectedItem = {
+    productCode: string;
+    itemCode: string;
+    itemName: string;
+  };
+
+  const [data, setData] = useState<any[]>([]);
+  const [selected, setSelected] = useState<selectedItem | undefined | null>();
+  //         productCode: item.proCode,
+  // itemCode: item.itemCode,
+  //  itemName: item.itemName,
+
+  const [loading, setLoading] = useState(true);
+
+  console.log({data, selected});
+
+  useEffect(() => {
+    fetchData();
+  }, []); // Gọi hàm fetchData khi component được mount
+
+  const fetchData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+
+      const response = await fetch(
+        'http://pos.foxai.com.vn:8123/api/Production/getProduction',
+        {
+          method: 'POST', // 👈 Đổi từ GET sang POST
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const text = await response.text();
+      console.log('📦 Raw response:', text);
+
+      if (!response.ok) {
+        console.error('❌ API lỗi:', response.status);
+        return;
+      }
+
+      const json = JSON.parse(text); // Tự parse sau khi kiểm tra raw
+      console.log('✅ Parsed JSON:', json);
+
+      const mappedData = json.items.map((item: any, index: number) => ({
+        productCode: item.proCode,
+        itemCode: item.itemCode,
+        itemName: item.itemName,
+      }));
+
+      setData(mappedData);
+    } catch (error) {
+      console.error('🚨 Lỗi khi gọi API:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -69,37 +117,40 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
           {/* Dropdown */}
           <View style={styles.pickerContainer}>
             <Picker
-              selectedValue={selected}
-              onValueChange={itemValue => setSelected(itemValue)}
+              selectedValue={selected?.itemCode ?? ''}
+              onValueChange={itemValue => {
+                const selectedProduct = data.find(
+                  item => item.itemCode === itemValue,
+                );
+                if (selectedProduct) {
+                  setSelected(selectedProduct); // Store the full object
+                } else {
+                  setSelected(null);
+                }
+              }}
               style={styles.picker}>
               <Picker.Item label="Chọn sản phẩm" value="" /> {/* Placeholder */}
               {data.map(item => (
                 <Picker.Item
-                  label={item.key}
-                  value={item.value}
-                  key={item.key}
+                  label={item.productCode}
+                  value={item.itemCode}
+                  key={item.productCode}
                 />
               ))}
             </Picker>
           </View>
-
           {/* Show Value */}
           <View style={styles.row}>
             <TextInput
-              value={selected}
+              value={selected?.itemCode}
               editable={false} //Chỉ đọc
               placeholder="Mã sản phẩm"
             />
           </View>
-
           {/* Show Value 1 */}
           <View style={styles.row}>
             <TextInput
-              value={
-                selected
-                  ? data.find(item => item.value === selected)?.value1
-                  : ''
-              }
+              value={selected?.itemName}
               editable={false} //Chỉ đọc
               placeholder="Tên sản phẩm"
             />
