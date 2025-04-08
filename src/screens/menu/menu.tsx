@@ -17,6 +17,7 @@ import {maxWorkers} from '../../../metro.config';
 type RootStackParamList = {
   Menu: undefined;
   WorkOrder: undefined;
+  Transfer: undefined;
 };
 
 type MenuScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Menu'>;
@@ -26,6 +27,15 @@ interface MenuScreenProps {
 }
 
 const MenuScreen: React.FC<MenuScreenProps> = ({navigation}) => {
+  // Transfer event
+  const handleTransfer = async () => {
+    try {
+      navigation.navigate('Transfer');
+    } catch (error) {
+      console.error('Error navigating to Transfer screen:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       //Header
@@ -58,25 +68,25 @@ const MenuScreen: React.FC<MenuScreenProps> = ({navigation}) => {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
+                <Text style={styles.buttonText}>
+                  Kiểm tra nguyên vật liệu đầu vào
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.button} onPress={handleTransfer}>
+                <Text style={styles.buttonText}>Xuất kho sản xuất</Text>/
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
+                <Text style={styles.buttonText}>Nhập kho bán thành phẩm</Text>/
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
+                <Text style={styles.buttonText}>Nhập kho thành phẩm</Text>/
               </TouchableOpacity>
             </View>
             //Right Menu
@@ -84,37 +94,36 @@ const MenuScreen: React.FC<MenuScreenProps> = ({navigation}) => {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
+                <Text style={styles.buttonText}>Biểu mẫu pha chế</Text>/
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
+                <Text style={styles.buttonText}>Trả lại NVL</Text>/
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
+                <Text style={styles.buttonText}>Nhập điều chỉnh</Text>/
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xác nhận</Text>/
+                <Text style={styles.buttonText}>Xuất điều chỉnh</Text>/
               </TouchableOpacity>
             </View>
           </View>
-          //Report button
+          //Logout button
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button]}
             onPress={() => console.log('Button pressed')}>
             <Text style={styles.buttonText}>Báo cáo</Text>/
           </TouchableOpacity>
-          //Logout button
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, {width: 300}]}
             onPress={() => console.log('Button pressed')}>
             <Text style={styles.buttonText}>Đăng xuất</Text>/
           </TouchableOpacity>
@@ -161,37 +170,44 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   mainContainer: {
-    flex: 1,
+    flex: 3,
     flexDirection: 'column',
     justifyContent: 'center',
-    // alignContent: 'center',
+    alignContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    // marginTop: 20,
     marginBottom: 20,
-    borderRadius: 10,
-    borderWidth: 1,
+    marginHorizontal: 50,
+    // borderRadius: 10,
+    // borderWidth: 1,
     // backgroundColor: 'red',
   },
   menuContainer: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignContent: 'flex-start',
-    marginBottom: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    backgroundColor: 'red',
+    // marginBottom: 20,
+    // borderRadius: 10,
+    // borderWidth: 1,
+    // backgroundColor: 'red',
   },
   menu: {
+    flex: 1,
+    alignContent: 'space-evenly',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
     height: 'auto',
-    borderColor: '#000',
+    // borderColor: '#000',
     // backgroundColor: 'red',
-    borderWidth: 1,
-    borderRadius: 10,
+    // borderWidth: 1,
+    // borderRadius: 10,
   },
   button: {
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'blue',
     margin: 10,
-    width: 400,
+    width: 500,
+    height: 60,
     borderRadius: 10,
   },
   buttonText: {
