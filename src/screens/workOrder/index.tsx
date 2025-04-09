@@ -17,7 +17,6 @@ type RootStackParamList = {
   Login: undefined;
   WorkOrder: undefined;
   Menu: undefined;
-  
 };
 
 type WorkOrderScreenNavigationProp = StackNavigationProp<
@@ -50,6 +49,8 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
     productCode: string;
     itemCode: string;
     itemName: string;
+    docEntry: string;
+    tranferId: string;
   };
 
   const [data, setData] = useState<any[]>([]);
@@ -69,7 +70,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       const response = await fetch(
         'http://pos.foxai.com.vn:8123/api/Production/getProduction',
         {
-          method: 'POST', // 👈 Đổi từ GET sang POST
+          method: 'POST', //  Đổi từ GET sang POST
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -78,15 +79,15 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       );
 
       const text = await response.text();
-      console.log('📦 Raw response:', text);
+      console.log(' Raw response:', text);
 
       if (!response.ok) {
-        console.error('❌ API lỗi:', response.status);
+        console.error(' API lỗi:', response.status);
         return;
       }
 
       const json = JSON.parse(text); // Tự parse sau khi kiểm tra raw
-      console.log('✅ Parsed JSON:', json);
+      console.log(' Parsed JSON:', json);
 
       const mappedData = json.items.map((item: any, index: number) => ({
         productCode: item.proCode,
@@ -96,7 +97,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
 
       setData(mappedData);
     } catch (error) {
-      console.error('🚨 Lỗi khi gọi API:', error);
+      console.error(' Lỗi khi gọi API:', error);
     } finally {
       setLoading(false);
     }

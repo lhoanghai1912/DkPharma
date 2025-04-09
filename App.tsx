@@ -19,7 +19,7 @@ const App: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Transfer" //Set default screen
+        initialRouteName="Login" //Set default screen
         screenOptions={{
           headerShown: false, // Tắt header toàn app
         }}>

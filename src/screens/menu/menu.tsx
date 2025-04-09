@@ -73,7 +73,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({navigation}) => {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.button} onPress={handleTransfer}>
+              <TouchableOpacity style={styles.button} onPress={(handleTransfer)}>
                 <Text style={styles.buttonText}>Xuất kho sản xuất</Text>/
               </TouchableOpacity>
 

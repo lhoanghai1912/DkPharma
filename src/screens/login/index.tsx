@@ -60,7 +60,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         //Login Successful, save token into AsyncStorage
         await AsyncStorage.setItem('userToken', data.accessToken);
         console.log('Login successful:', data.accessToken);
-
         // Navigation
         navigation.navigate('WorkOrder');
       } else {
