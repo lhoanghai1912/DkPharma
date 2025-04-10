@@ -3,12 +3,20 @@ import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
 import axios from 'axios';
+
 import CheckBox from 'react-native-check-box';
+import ItemComponent from './itemComponent';
 
 interface MaterialItem {
+  creator: string;
+  docCode: string;
+  docdate: string;
+  tranferId: string;
+  whsCode: string;
+  productionCode: string;
   id: number;
-  itemCode: String;
-  itemName: String;
+  itemCode: string;
+  itemName: string;
   batchNumber: number;
   expDate: string;
   checkQr: Image;
@@ -31,6 +39,7 @@ import {
   Alert,
   FlatList,
 } from 'react-native';
+import {red} from 'react-native-reanimated/lib/typescript/Colors';
 
 type selectedItem = {
   tranferId: string;
@@ -38,11 +47,30 @@ type selectedItem = {
   docDate: string;
 };
 
-const TransferScreen: React.FC = () => {
+type RootStackParamList = {
+  Menu: undefined;
+  Transfer: undefined;
+};
+
+type TranferScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Transfer'
+>;
+
+interface TranferScreenProp {
+  navigation: TranferScreenNavigationProp;
+  route: any;
+}
+
+const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
+  //Get docEntry,tranferId from Menu
+  const {docEntry} = route.params;
+  const {tranferId} = route.params;
+
+  console.log('1', route.params);
+
   const [data, setData] = useState<MaterialItem[]>([]); // <--- Đảm bảo kiểu dữ liệu của state là MaterialItem[]
-  const [loading, setLoading] = useState<boolean>(false);
-  const [tranferId, setTranferId] = useState();
-  const [docEntry, setDocEntry] = useState();
+  const [loading, setLoading] = useState(false);
   const [docDate, setDocDate] = useState(new Date());
   const docDateEncoded = encodeURIComponent(docDate.toISOString());
 
@@ -52,14 +80,9 @@ const TransferScreen: React.FC = () => {
     setLoading(true);
     try {
       const token = await AsyncStorage.getItem('userToken');
-      console.log('11111');
-
-      console.log('tokentoken=====>', token);
-      const url = `http://pos.foxai.com.vn:8123/api/Production/getTranferRequest63?DocEntry=94&docDate=Sun%2C09%20Nov%202025%2018%3A08%3A19%20GMT`;
 
       const res = await axios.get<MaterialItem[]>(
-        url,
-        // `http://pos.foxai.com.vn:8123/api/Production/getTranferRequest${tranferId}?DocEntry=${docEntry}&docDate=${docDateEncoded}`,
+        `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${tranferId}?DocEntry=${docEntry}&docDate=${docDateEncoded}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -67,15 +90,17 @@ const TransferScreen: React.FC = () => {
           },
         },
       );
-      console.log(res.data);
+      console.log('1', res);
+      if ((res.status = 200)) {
+        setData(res.data.items);
+      } else {
+        Alert.alert('API err');
+      }
     } catch (err) {
-      console.log('333333');
-
       Alert.alert('API err', err?.message);
       console.error(err);
     } finally {
       setLoading(false);
-      console.log('4444444');
     }
   };
 
@@ -84,10 +109,35 @@ const TransferScreen: React.FC = () => {
   }, []);
 
   const updateField = (index: number, key: keyof MaterialItem, value: any) => {
-    const newData = [...data];
-    newData[index][key] = value;
-    setData(newData);
+    // const newData = [...data];
+    // newData[index][key] = value;
+    // setData(newData);
   };
+
+  const renderItem = ({item, index}: any) => {
+    console.log('iteeeeeeeeee', item);
+    return (
+      <View style={styles.content_row}>
+        <Text style={styles.content_cell}>{index + 1}</Text>
+        <Text style={styles.content_cell}>{item.itemCode}</Text>
+        <Text style={styles.content_cell}>{item.itemName}</Text>
+        <Text style={styles.content_cell}>{item.itemCode}</Text>
+        <Text style={styles.content_cell}>{item.batchNumber}</Text>
+        <Text style={styles.content_cell}>{item.expDate}</Text>
+        <TouchableOpacity onPress={() => {}}>
+          {/* // <Image source={icons.qr_code} style={styles.imgQr} /> */}
+        </TouchableOpacity>
+        <Text style={styles.content_cell}>{item.requiredQuantity}</Text>
+        <Text style={styles.content_cell}>{item.quantity}</Text>
+        <Text style={styles.content_cell}>{item.calculatedQuantity}</Text>
+        <Text style={styles.content_cell}>{item.remainingQuantity}</Text>
+        <Text style={styles.content_cell}>{item.uomCode}</Text>
+        <Text style={styles.content_cell}>{item.note}</Text>
+      </View>
+    );
+  };
+
+  console.log('datadatadatadatadata===', data);
 
   return (
     <View style={styles.container}>
@@ -107,105 +157,80 @@ const TransferScreen: React.FC = () => {
         <View style={styles.topContainer}>
           <View style={styles.col_topContainer}>
             <View>
-              <TextInput style={styles.item_topContainer}>Mã CT</TextInput>
               <TextInput style={styles.item_topContainer}>
-                Ngày xuất kho
+                {`Mã CT: ${data.productionCode}`}
               </TextInput>
-              <TextInput style={styles.item_topContainer}>Trạng thái</TextInput>
+              <TextInput style={styles.item_topContainer}>
+                {`Ngày xuất kho: ${data.docDate}`}
+              </TextInput>
+              <TextInput style={styles.item_topContainer}>
+                {`Trạng thái: ${data.status}`}
+              </TextInput>
             </View>
             <View>
               <TextInput style={styles.item_topContainer}>
-                Lệnh sản xuất
+                {`Lệnh sản xuất: ${data.productionCode}`}
               </TextInput>
               <TextInput style={styles.item_topContainer}>
-                Tên thành phẩm
+                {`Tên thành phẩm: ${data.itemName}`}
               </TextInput>
-              <TextInput style={styles.item_topContainer}>Kho xuất</TextInput>
+              <TextInput style={styles.item_topContainer}>
+                {`Kho xuất: ${data.whsCode}`}
+              </TextInput>
             </View>
             <View>
-              {/* <TextInput style={styles.item_topContainer}>Mã yêu cầu chuyển kho</TextInput> */}
+              {/* <TextInput style={styles.item_topContainer}>
+                Mã yêu cầu chuyển kho
+              </TextInput> */}
 
               <Picker
-                selectedValue={setDocEntry}
+                selectedValue={docEntry}
                 onValueChange={itemValue => setDocEntry(itemValue)}
                 style={styles.picker}>
                 <Picker.Item label="Chọn mã yêu cầu chuyển kho" value="" />{' '}
               </Picker>
 
               <TextInput style={styles.item_topContainer}>
-                Mã thành phẩm
+                {`Mã thành phẩm: ${data.itemCode}`}
               </TextInput>
-              <TextInput style={styles.item_topContainer}>Người nhập</TextInput>
+              <TextInput style={styles.item_topContainer}>
+                {`Người nhập: ${data.creator}`}
+              </TextInput>
             </View>
           </View>
         </View>
         {/* Table Header */}
-        <View style={styles.row}>
-          // <Text style={styles.cell}>STT</Text>
-          // <Text style={styles.cell}>Mã NVL</Text>
-          // <Text style={styles.cell}>Tên NVL</Text>
-          // <Text style={styles.cell}>Số lô</Text>
-          // <Text style={styles.cell}>Hạn sử dụng</Text>
-          // <Text style={styles.cell}>Kiểm tra QR</Text>
-          // <Text style={styles.cell}>SL theo yc</Text>
-          // <Text style={styles.cell}>SL xuất thực tế</Text>
-          // <Text style={styles.cell}>SL luỹ kế</Text>
-          // <Text style={styles.cell}>SL Còn lại</Text>
-          // <Text style={styles.cell}>ĐVT</Text>
-          // <Text style={styles.cell}>Ghi chú</Text>
+        <View style={styles.table}>
+          <View style={styles.content_row}>
+            <Text style={[styles.content_cell]}>STT</Text>
+            <Text style={styles.content_cell}>Mã NVL</Text>
+            <Text style={styles.content_cell}>Tên NVL</Text>
+            <Text style={styles.content_cell}>Số lô</Text>
+            <Text style={styles.content_cell}>Hạn sử dụng</Text>
+            <Text style={styles.content_cell}>Kiểm tra QR</Text>
+            <Text style={styles.content_cell}>SL theo yc</Text>
+            <Text style={styles.content_cell}>SL xuất thực tế</Text>
+            <Text style={styles.content_cell}>SL luỹ kế</Text>
+            <Text style={styles.content_cell}>SL Còn lại</Text>
+            <Text style={styles.content_cell}>ĐVT</Text>
+            <Text style={styles.content_cell}>Ghi chú</Text>
+          </View>
+          <FlatList
+            data={data?.apP_WTQ1}
+            renderItem={renderItem}
+            keyExtractor={item => item.itemCode.toString()}
+            style={{
+              flex: 1,
+              width: '100%',
+            }}
+          />
         </View>
-        {/* //Table Body */}
-        <FlatList
-          data={data}
-          keyExtractor={item => item.id.toString()}
-          ListEmptyComponent={
-            <Text style={{textAlign: 'center', padding: 20}}>
-              {loading ? 'Đang tải dữ liệu...' : 'Không có dữ liệu'}
-            </Text>
-          }
-          renderItem={({item, index}) => (
-            <View style={styles.row}>
-              <Text style={styles.cell}>{index + 1}</Text>
-              <Text style={styles.cell}>{item.itemCode}</Text>
-              <Text style={styles.cell}>{item.itemName}</Text>
-              <Text style={styles.cell}>{item.batchNumber}</Text>
-              <Text style={styles.cell}>{item.expDate}</Text>
-
-              <View style={styles.cell}>
-                <CheckBox
-                  isChecked={item.checked} // <-- Sử dụng isChecked thay cho value
-                  onClick={() => updateField(index, 'checked', !item.checked)} // Toggle checkbox state
-                />
-              </View>
-
-              <TextInput
-                style={styles.cellInput}
-                value={String(item.requiredQuantity)}
-                keyboardType="numeric"
-                onChangeText={val =>
-                  updateField(index, 'requiredQuantity', Number(val))
-                }
-              />
-
-              <TextInput
-                style={[styles.cellInput, {color: '#aaa'}]}
-                editable={false}
-                value={String(item.quantity)}
-              />
-
-              <Text style={styles.cell}>{item.calculatedQuantity}</Text>
-              <Text style={styles.cell}>{item.remainingQuantity}</Text>
-              <Text style={styles.cell}>{item.uomCode}</Text>
-              <Text style={styles.cell}>{item.note || ''}</Text>
-            </View>
-          )}
-        />
-        // {/* Table Header */}
       </View>
-      {/* Table Body */}
-
       {/* //Bottom cont */}
-      <View style={styles.bottomContainer}></View>
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity>abc</TouchableOpacity>
+        <TouchableOpacity>abc</TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -215,7 +240,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'flex-start',
     // alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    // backgroundColor: 'red',
   },
   header: {
     flexDirection: 'row',
@@ -229,21 +254,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
   },
-  body: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    // backgroundColor: 'red',
-  },
+
   topContainer: {
     // flex: 1,
     width: '100%',
     flexDirection: 'column',
     justifyContent: 'flex-start',
     backgroundColor: 'white',
+    borderWidth: 5,
     borderRadius: 1,
-    borderWidth: 1,
     marginHorizontal: 10,
   },
   col_topContainer: {
@@ -263,26 +282,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     justifyContent: 'center',
   },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    // justifyContent: 'space-between',
-    // backgroundColor: 'red',
-  },
-  headerText_body: {
-    flex: 1,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    borderRadius: 1,
-    borderWidth: 1,
-  },
-  pickerContainer: {
-    borderColor: '#000', // Viền cho Picker
-    borderWidth: 1, // Độ dày viền của Picker
-    borderRadius: 10, // Bo góc cho Picker
-    backgroundColor: 'red',
-    marginBottom: 20,
-  },
+
   picker: {
     // flex: 1,
     width: 300,
@@ -291,42 +291,45 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'red',
   },
-  row: {
+  content_row: {
     flexDirection: 'row',
-    paddingVertical: 5,
-    borderBottomWidth: 1,
-    borderRightWidth: 1,
-    borderLeftWidth: 1,
-    borderColor: 'black',
-    // backgroundColor: 'red',
+    borderWidth: 0.5,
+    width: '100%',
   },
-  cell: {
+  content_cell: {
     flex: 1,
+    paddingHorizontal: 10,
+    backgroundColor: `lightgrey`,
     textAlign: 'center',
-    // padding: 5,
-    borderRightWidth: 1,
-    borderLeftWidth: 1,
-  },
-  cellInput: {
-    flex: 1,
-    fontSize: 12,
-    textAlign: 'center',
-    paddingVertical: 2,
-    borderBottomWidth: 0.5,
-    borderColor: '#ccc',
-  },
-  item_mainContainer: {
-    flex: 1,
-    width: 'auto',
-    textAlign: 'center',
+    borderWidth: 0.5,
     borderRadius: 1,
-    borderWidth: 1,
   },
+  body: {
+    flex: 5,
+    height: '100%',
+    // width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 5,
+    borderRadius: 1,
+  },
+  table: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+    alignContent: 'space-between',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
   bottomContainer: {
     flex: 1,
     alignContent: 'space-between',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderWidth: 5,
+    borderRadius: 1,
+    // backgroundColor: 'blue',
   },
   text: {
     fontSize: 24,

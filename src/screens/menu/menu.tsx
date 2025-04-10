@@ -17,20 +17,33 @@ import {maxWorkers} from '../../../metro.config';
 type RootStackParamList = {
   Menu: undefined;
   WorkOrder: undefined;
-  Transfer: undefined;
+  Transfer: {docEntry: string; tranferId: string};
 };
 
-type MenuScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Menu'>;
+type MenuScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Transfer'
+>;
 
 interface MenuScreenProps {
   navigation: MenuScreenNavigationProp;
+  route: any;
 }
 
-const MenuScreen: React.FC<MenuScreenProps> = ({navigation}) => {
+const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
+
+  //Get docEntry,tranferId from Menu
+  const {docEntry} = route.params;
+  const {tranferId} = route.params;
+
+  console.log('docEntry', docEntry);
+  // console.log('1111111111');
+  console.log('tranferId', tranferId);
+
   // Transfer event
   const handleTransfer = async () => {
     try {
-      navigation.navigate('Transfer');
+      navigation.navigate('Transfer', {docEntry, tranferId});
     } catch (error) {
       console.error('Error navigating to Transfer screen:', error);
     }
@@ -73,7 +86,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({navigation}) => {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.button} onPress={(handleTransfer)}>
+              <TouchableOpacity style={styles.button} onPress={handleTransfer}>
                 <Text style={styles.buttonText}>Xuất kho sản xuất</Text>/
               </TouchableOpacity>
 

@@ -16,7 +16,7 @@ import {
 type RootStackParamList = {
   Login: undefined;
   WorkOrder: undefined;
-  Menu: undefined;
+  Menu: {docEntry: string; tranferId: string};
 };
 
 type WorkOrderScreenNavigationProp = StackNavigationProp<
@@ -29,21 +29,11 @@ interface WorkOrderScreenProps {
 }
 
 const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
-  // Logout event
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('userToken'); // Xóa token đăng nhập
-      console.log('User logged out successfully');
-      navigation.navigate('Login');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
-
-  // Menu event
-  const handleMenu = async () => {
-    navigation.navigate('Menu');
-  };
+  const [data, setData] = useState<any[]>([]);
+  const [selected, setSelected] = useState<selectedItem | undefined | null>();
+  const [loading, setLoading] = useState(true);
+  const [docEntry, setDocEntry] = useState<string>('');
+  const [transferId, setsTranferId] = useState<string>('');
 
   type selectedItem = {
     productCode: string;
@@ -52,10 +42,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
     docEntry: string;
     tranferId: string;
   };
-
-  const [data, setData] = useState<any[]>([]);
-  const [selected, setSelected] = useState<selectedItem | undefined | null>();
-  const [loading, setLoading] = useState(true);
 
   console.log({data, selected});
 
@@ -68,7 +54,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       const token = await AsyncStorage.getItem('userToken');
 
       const response = await fetch(
-        'http://pos.foxai.com.vn:8123/api/Production/getProduction',
+        'https://pos.foxai.com.vn:8123/api/Production/getProduction',
         {
           method: 'POST', //  Đổi từ GET sang POST
           headers: {
@@ -93,6 +79,8 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
         productCode: item.proCode,
         itemCode: item.itemCode,
         itemName: item.itemName,
+        docEntry: item.docEntry,
+        tranferId: item.tranferId,
       }));
 
       setData(mappedData);
@@ -100,6 +88,27 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       console.error(' Lỗi khi gọi API:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Logout event
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('userToken'); // Xóa token đăng nhập
+      console.log('User logged out successfully');
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  // Menu event
+  const handleMenu = () => {
+    if (selected) {
+      navigation.navigate('Menu', {
+        docEntry: selected.docEntry, // Truyền docEntry vào màn Menu
+        tranferId: selected.tranferId, // Truyền tranferId vào Menu
+      });
     }
   };
 

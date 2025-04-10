@@ -42,7 +42,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     try {
       // TODO: Call API login ở đây
       const response = await fetch(
-        'http://pos.foxai.com.vn:8123/api/Auth/login',
+        'https://pos.foxai.com.vn:8123/api/Auth/login',
         {
           method: 'POST',
           headers: {
