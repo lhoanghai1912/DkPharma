@@ -3,9 +3,10 @@ import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
 import axios from 'axios';
+import moment from 'moment';
+import styles from './styles';
 
 import CheckBox from 'react-native-check-box';
-import ItemComponent from './itemComponent';
 
 interface MaterialItem {
   creator: string;
@@ -73,7 +74,9 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   const [loading, setLoading] = useState(false);
   const [docDate, setDocDate] = useState(new Date());
   const docDateEncoded = encodeURIComponent(docDate.toISOString());
-
+  const [selectDate, setSelectDate] = useState(
+    moment(new Date()).format('DD/MM/YYYY'),
+  );
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
 
   const fetchData = async () => {
@@ -118,27 +121,28 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     console.log('iteeeeeeeeee', item);
     return (
       <View style={styles.content_row}>
-        <Text style={styles.content_cell}>{index + 1}</Text>
+        <Text style={[styles.col_STT]}>{index + 1}</Text>
         <Text style={styles.content_cell}>{item.itemCode}</Text>
         <Text style={styles.content_cell}>{item.itemName}</Text>
-        <Text style={styles.content_cell}>{item.itemCode}</Text>
         <Text style={styles.content_cell}>{item.batchNumber}</Text>
-        <Text style={styles.content_cell}>{item.expDate}</Text>
-        <TouchableOpacity onPress={() => {}}>
-          {/* // <Image source={icons.qr_code} style={styles.imgQr} /> */}
+        <Text style={styles.content_cell}>
+          {moment(item.expDate).format('L')}
+        </Text>
+        <TouchableOpacity style={styles.content_cell} onPress={() => {}}>
+          <Image
+            source={require('../../assests/icons/qr.png')}
+            style={styles.imgQr}
+          />
         </TouchableOpacity>
         <Text style={styles.content_cell}>{item.requiredQuantity}</Text>
-        <Text style={styles.content_cell}>{item.quantity}</Text>
         <Text style={styles.content_cell}>{item.calculatedQuantity}</Text>
+        <Text style={styles.content_cell}>{item.quantity}</Text>
         <Text style={styles.content_cell}>{item.remainingQuantity}</Text>
         <Text style={styles.content_cell}>{item.uomCode}</Text>
         <Text style={styles.content_cell}>{item.note}</Text>
       </View>
     );
   };
-
-  console.log('datadatadatadatadata===', data);
-
   return (
     <View style={styles.container}>
       {/* //Header */}
@@ -202,7 +206,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         {/* Table Header */}
         <View style={styles.table}>
           <View style={styles.content_row}>
-            <Text style={[styles.content_cell]}>STT</Text>
+            <Text style={[styles.col_STT]}>STT</Text>
             <Text style={styles.content_cell}>Mã NVL</Text>
             <Text style={styles.content_cell}>Tên NVL</Text>
             <Text style={styles.content_cell}>Số lô</Text>
@@ -234,115 +238,5 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // justifyContent: 'flex-start',
-    // alignItems: 'center',
-    // backgroundColor: 'red',
-  },
-  header: {
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    height: 'auto',
-    backgroundColor: '#dcdcdc',
-    justifyContent: 'space-between',
-  },
-  headerText_header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
-
-  topContainer: {
-    // flex: 1,
-    width: '100%',
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    backgroundColor: 'white',
-    borderWidth: 5,
-    borderRadius: 1,
-    marginHorizontal: 10,
-  },
-  col_topContainer: {
-    // flex: 1,
-    flexDirection: 'row',
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    alignContent: 'center',
-    borderColor: '#000',
-    // backgroundColor: 'red',
-  },
-  item_topContainer: {
-    // flex: 1,
-    width: '100%',
-    // borderRadius: 1,
-    // borderWidth: 1,
-    justifyContent: 'center',
-  },
-
-  picker: {
-    // flex: 1,
-    width: 300,
-    borderColor: 'red',
-    borderWidth: 10,
-    borderRadius: 10,
-    backgroundColor: 'red',
-  },
-  content_row: {
-    flexDirection: 'row',
-    borderWidth: 0.5,
-    width: '100%',
-  },
-  content_cell: {
-    flex: 1,
-    paddingHorizontal: 10,
-    backgroundColor: `lightgrey`,
-    textAlign: 'center',
-    borderWidth: 0.5,
-    borderRadius: 1,
-  },
-  body: {
-    flex: 5,
-    height: '100%',
-    // width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 5,
-    borderRadius: 1,
-  },
-  table: {
-    flex: 1,
-    height: '100%',
-    width: '100%',
-    alignContent: 'space-between',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-
-  bottomContainer: {
-    flex: 1,
-    alignContent: 'space-between',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 5,
-    borderRadius: 1,
-    // backgroundColor: 'blue',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-
-  logo: {
-    width: 100,
-    height: 100,
-    // marginBottom: 20,
-    resizeMode: 'contain', // Adjust the image size as needed
-    alignSelf: 'flex-start',
-  },
-});
 
 export default TransferScreen;

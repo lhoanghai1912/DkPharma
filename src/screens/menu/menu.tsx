@@ -31,7 +31,6 @@ interface MenuScreenProps {
 }
 
 const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
-
   //Get docEntry,tranferId from Menu
   const {docEntry} = route.params;
   const {tranferId} = route.params;
@@ -150,8 +149,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    // alignItems: 'center',
-    // backgroundColor: 'red',
   },
   header: {
     flexDirection: 'row',
@@ -170,14 +167,12 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 100,
-    // marginBottom: 20,
     resizeMode: 'contain', // Adjust the image size as needed
     alignSelf: 'flex-start',
   },
   logo1: {
     width: 30,
     height: 30,
-    // marginBottom: 20,
     resizeMode: 'contain', // Adjust the image size as needed
     alignSelf: 'center',
     paddingHorizontal: 30,
@@ -188,20 +183,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignContent: 'center',
     alignItems: 'center',
-    // marginTop: 20,
     marginBottom: 20,
     marginHorizontal: 50,
-    // borderRadius: 10,
-    // borderWidth: 1,
-    // backgroundColor: 'red',
   },
   menuContainer: {
     flex: 1,
     flexDirection: 'row',
-    // marginBottom: 20,
-    // borderRadius: 10,
-    // borderWidth: 1,
-    // backgroundColor: 'red',
   },
   menu: {
     flex: 1,
@@ -209,10 +196,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
     height: 'auto',
-    // borderColor: '#000',
-    // backgroundColor: 'red',
-    // borderWidth: 1,
-    // borderRadius: 10,
   },
   button: {
     alignItems: 'center',
