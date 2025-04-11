@@ -70,7 +70,11 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
 
   console.log('1', route.params);
 
-  const [data, setData] = useState<MaterialItem[]>([]); // <--- Đảm bảo kiểu dữ liệu của state là MaterialItem[]
+  const [data, setData] = useState<{
+    items: MaterialItem[];
+    apP_WTQ1?: MaterialItem[];
+    status?: string;
+  }>({items: []}); // Added optional status property
   const [loading, setLoading] = useState(false);
   const [docDate, setDocDate] = useState(new Date());
   const docDateEncoded = encodeURIComponent(docDate.toISOString());
@@ -131,7 +135,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         <TouchableOpacity style={styles.content_cell} onPress={() => {}}>
           <Image
             source={require('../../assests/icons/qr.png')}
-            style={styles.imgQr}
+            style={styles.img}
           />
         </TouchableOpacity>
         <Text style={styles.content_cell}>{item.requiredQuantity}</Text>
@@ -168,7 +172,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
                 {`Ngày xuất kho: ${data.docDate}`}
               </TextInput>
               <TextInput style={styles.item_topContainer}>
-                {`Trạng thái: ${data.status}`}
+                {`Trạng thái: ${data.status || 'N/A'}`}
               </TextInput>
             </View>
             <View>
@@ -220,7 +224,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
             <Text style={styles.content_cell}>Ghi chú</Text>
           </View>
           <FlatList
-            data={data?.apP_WTQ1}
+            data={data.apP_WTQ1 || data.items} // Fallback to items if apP_WTQ1 is undefined
             renderItem={renderItem}
             keyExtractor={item => item.itemCode.toString()}
             style={{
@@ -232,8 +236,16 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
       </View>
       {/* //Bottom cont */}
       <View style={styles.bottomContainer}>
-        <TouchableOpacity>abc</TouchableOpacity>
-        <TouchableOpacity>abc</TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('pressed')}>
+          <Text style={styles.textform}>Tạo phiếu</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => console.log('pressed')}>
+          <Text style={styles.textform}>Đồng bộ</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

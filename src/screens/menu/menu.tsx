@@ -35,9 +35,9 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
   const {docEntry} = route.params;
   const {tranferId} = route.params;
 
-  console.log('docEntry', docEntry);
-  // console.log('1111111111');
-  console.log('tranferId', tranferId);
+  // console.log('docEntry', docEntry);
+  // // console.log('1111111111');
+  // console.log('tranferId', tranferId);
 
   // Transfer event
   const handleTransfer = async () => {

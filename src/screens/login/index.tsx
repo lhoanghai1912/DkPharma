@@ -29,8 +29,8 @@ interface LoginScreenProps {
 // Định nghĩa kiểu cho props của component
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>('Admin');
+  const [password, setPassword] = useState<string>('1234');
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
 
   const handleLogin = async () => {
@@ -38,7 +38,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       Alert.alert('Erro', 'Please enter both username and password');
       return;
     }
-
     try {
       // TODO: Call API login ở đây
       const response = await fetch(
@@ -54,21 +53,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           }),
         },
       );
-      const data = await response.json();
+      const dataLogin = await response.json();
 
-      if (response.ok) {
-        //Login Successful, save token into AsyncStorage
-        await AsyncStorage.setItem('userToken', data.accessToken);
-        console.log('Login successful:', data.accessToken);
-        // Navigation
-        navigation.navigate('WorkOrder');
+      console.log('dataLogin?.accessToke', dataLogin);
+
+      if (dataLogin?.refreshToken) {
+        try {
+          const jsonValue = JSON.stringify(dataLogin);
+          await AsyncStorage.setItem('userToken', jsonValue);
+          await navigation.navigate('WorkOrder');
+        } catch (e) {
+          // saving error
+        }
       } else {
-        //Login Fail
-        Alert.alert('Error', data.message || 'Login failed');
+        Alert.alert('Error', dataLogin.message || 'Login failed');
       }
     } catch (error) {
       console.error('Error logging in:', error);
-      Alert.alert('Error', 'Something went wrong. Please try again later.');
+      Alert.alert('Error', 'Something went wrong. Please try again late111r.');
     }
   };
 
@@ -78,16 +80,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <Image
-          source={require('../../assests/images/logo.png')}
-          style={styles.logo}
-        />
-        <Text style={styles.headerText}>Đăng nhập</Text>
-      </View> */}
-      {/* Main container */}
-      {/* logo */}
       <Image
         source={require('../../assests/images/logo.png')}
         style={styles.logo}

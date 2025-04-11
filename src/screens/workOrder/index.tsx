@@ -29,11 +29,27 @@ interface WorkOrderScreenProps {
 }
 
 const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
+  // const infoUser=
+
   const [data, setData] = useState<any[]>([]);
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
   const [loading, setLoading] = useState(true);
   const [docEntry, setDocEntry] = useState<string>('');
   const [transferId, setsTranferId] = useState<string>('');
+  const [userInfo, setUserInfo] = useState<any>();
+
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('userToken');
+      setUserInfo(jsonValue);
+    } catch (e) {
+      // error reading value
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
+  console.log('userI44444444444444444444', userInfo);
 
   type selectedItem = {
     productCode: string;
@@ -43,15 +59,16 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
     tranferId: string;
   };
 
-  console.log({data, selected});
+  console.log('asdasdadawd', {data, selected});
 
-  useEffect(() => {
-    fetchData();
-  }, []); // Gọi hàm fetchData khi component được mount
+  // useEffect(() => {
+  //   fetchData();
+  // }, []); // Gọi hàm fetchData khi component được mount
 
   const fetchData = async () => {
     try {
       const token = await AsyncStorage.getItem('userToken');
+      console.log(token);
 
       const response = await fetch(
         'https://pos.foxai.com.vn:8123/api/Production/getProduction',
@@ -123,7 +140,9 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
         <View style={styles.logo} />
       </View>
 
-      <Text style={[styles.labelText, {margin: 30}]}>Hello, user name</Text>
+      <Text style={[styles.labelText, {margin: 30}]}>
+        {/* {`Hello, ${data..username}`} */}
+      </Text>
 
       <View style={styles.body}>
         <View style={styles.box}>

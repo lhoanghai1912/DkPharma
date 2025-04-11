@@ -4,13 +4,14 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'flex-start',
-    // alignItems: 'center',
-    // backgroundColor: 'red',
+    borderWidth:1,
+    borderRadius:15,
+    padding:5,
   },
   header: {
     flexDirection: 'row',
     paddingHorizontal: 10,
+    // marginVertical:5,
     height: 'auto',
     backgroundColor: '#dcdcdc',
     justifyContent: 'space-between',
@@ -20,6 +21,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
   },
+
+  // Body
   topContainer: {
     // flex: 1,
     width: '100%',
@@ -27,9 +30,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     backgroundColor: 'white',
     borderBottomWidth: 1,
-    borderRadius: 1,
+    borderRadius: 5,
     padding: 5,
-    marginHorizontal: 10,
   },
   col_topContainer: {
     // flex: 1,
@@ -55,6 +57,26 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: 'red',
   },
+
+  //body container
+
+  body: {
+    flex: 5,
+    height: '100%',
+    // width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopWidth:1,
+    // marginVertical:5,
+  },
+  table: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+    alignContent: 'space-between',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   content_row: {
     flexDirection: 'row',
     borderWidth: 0.5,
@@ -70,38 +92,38 @@ const styles = StyleSheet.create({
     paddingVertical:5,
     justifyContent: 'center', // Căn giữa theo chiều dọc
   },
-  body: {
-    flex: 5,
-    height: '100%',
-    // width: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  table: {
-    flex: 1,
-    height: '100%',
-    width: '100%',
-    alignContent: 'space-between',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+
+  //Bottom container
   bottomContainer: {
-    flex: 1,
-    alignContent: 'space-between',
-    justifyContent: 'space-between',
+    flexDirection:'row',
+    flex: 0.5,
+    justifyContent: 'space-around',
     alignItems: 'center',
-    borderWidth: 5,
+    borderTopWidth: 1,
     borderRadius: 1,
-    // backgroundColor: 'blue',
+    // backgroundColor: 'red',
   },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  button:{
+    alignItems:'center',
+    width:'auto',
+    backgroundColor:'cornflowerblue',
+    padding:5,
+    borderRadius:5,
+    borderWidth:1,
   },
-  imgQr: {
+  textform: {
+    height:'auto',
+    fontSize: 22,
+    textAlign:'center',
+    fontWeight:500,
+    color:'white',
+  },
+  img: {
+    alignItems:'center',
+    resizeMode:'contain',
     height: 30,
-    width: 30,
-  },
+    width:30,
+    },
   logo: {
     width: 100,
     height: 100,
@@ -115,27 +137,6 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderLeftWidth:1,
   },
-  col_maNVL: {
-    textAlign: 'center',
-    flex: 1,
-    borderRightWidth: 1,
-  },
-  col_tenNVL: {
-    textAlign: 'center',
-    flex: 1,
-    borderRightWidth: 1,
-  },
-  col_soLo: {
-    textAlign: 'center',
-    flex: 1,
-    borderRightWidth: 1,
-  },
-  col_hanSD: {
-    textAlign: 'center',
-    flex: 1,
-    height: 'auto',
-    borderRightWidth: 1,
-  },
   col_QR: {
     textAlign: 'center',
     alignItems: 'center',
@@ -145,42 +146,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     borderRightWidth: 1,
   },
-  col_yCau: {
-    textAlign: 'center',
-    flex: 1,
-    height: 'auto',
-    borderRightWidth: 1,
-  },
-  col_thucTe: {
-    textAlign: 'center',
-    flex: 1,
-    height: 'auto',
-    borderRightWidth: 1,
-  },
-  col_luyKe: {
-    textAlign: 'center',
-    flex: 1,
-    height: 'auto',
-    borderRightWidth: 1,
-  },
-  col_conLai: {
-    textAlign: 'center',
-    flex: 1,
-    height: 'auto',
-    borderRightWidth: 1,
-  },
-  col_donViTinh: {
-    textAlign: 'center',
-    height: 'auto',
-    flex: 1,
-    borderRightWidth: 1,
-  },
-  col_ghiChu: {
-    textAlign: 'center',
-    flex: 1,
-    height: 'auto',
-    borderRightWidth: 1,
-  },
+
 });
 
 export default styles;
