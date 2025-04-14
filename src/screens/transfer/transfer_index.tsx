@@ -68,25 +68,44 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   const {docEntry} = route.params;
   const {tranferId} = route.params;
 
-  console.log('1', route.params);
+  // console.log('1', route.params);
 
   const [data, setData] = useState<{
     items: MaterialItem[];
     apP_WTQ1?: MaterialItem[];
     status?: string;
   }>({items: []}); // Added optional status property
-  const [loading, setLoading] = useState(false);
   const [docDate, setDocDate] = useState(new Date());
   const docDateEncoded = encodeURIComponent(docDate.toISOString());
+  const [userInfo, setUserInfo] = useState<any>();
+
   const [selectDate, setSelectDate] = useState(
     moment(new Date()).format('DD/MM/YYYY'),
   );
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
 
-  const fetchData = async () => {
-    setLoading(true);
+  const getData = async () => {
     try {
-      const token = await AsyncStorage.getItem('userToken');
+      const tokenValue = await AsyncStorage.getItem('userToken');
+      console.log('tokenvalueeeeeeeeeee', tokenValue);
+
+      if (tokenValue) {
+        setUserInfo(JSON.parse(tokenValue));
+      }
+    } catch (e) {
+      console.log('erro: ', e);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const fetchData = async (token: string) => {
+    console.log('tokennnnnnnnnnnnnn1111', token);
+
+    try {
+      console.log('tokennnnnnnnnnnn', token);
 
       const res = await axios.get<MaterialItem[]>(
         `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${tranferId}?DocEntry=${docEntry}&docDate=${docDateEncoded}`,
@@ -97,7 +116,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           },
         },
       );
-      console.log('1', res);
+      console.log('2', res);
       if ((res.status = 200)) {
         setData(res.data.items);
       } else {
@@ -106,14 +125,14 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     } catch (err) {
       Alert.alert('API err', err?.message);
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (userInfo?.accessToken) {
+      fetchData(userInfo?.accessToken);
+    }
+  }, [userInfo]);
 
   const updateField = (index: number, key: keyof MaterialItem, value: any) => {
     // const newData = [...data];
@@ -122,7 +141,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   };
 
   const renderItem = ({item, index}: any) => {
-    console.log('iteeeeeeeeee', item);
+    console.log('33333333333333333333', item);
     return (
       <View style={styles.content_row}>
         <Text style={[styles.col_STT]}>{index + 1}</Text>

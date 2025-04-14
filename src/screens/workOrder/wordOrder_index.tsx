@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
-
+import styles from './styles';
 import {
   View,
   Text,
@@ -11,6 +11,14 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
+
+type selectedItem = {
+  productCode: string;
+  itemCode: string;
+  itemName: string;
+  docEntry: string;
+  tranferId: string;
+};
 
 // Định nghĩa loại đối tượng navigation
 type RootStackParamList = {
@@ -34,42 +42,28 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
   const [data, setData] = useState<any[]>([]);
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
   const [loading, setLoading] = useState(true);
-  const [docEntry, setDocEntry] = useState<string>('');
-  const [transferId, setsTranferId] = useState<string>('');
   const [userInfo, setUserInfo] = useState<any>();
 
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('userToken');
-      setUserInfo(jsonValue);
+      console.log('jsonValuejsonValue1', jsonValue);
+
+      if (jsonValue) {
+        setUserInfo(JSON.parse(jsonValue));
+      }
     } catch (e) {
       // error reading value
     }
   };
+
   useEffect(() => {
     getData();
   }, []);
-  console.log('userI44444444444444444444', userInfo);
+  const fetchDataApi = async (token: string) => {
+    console.log('token===>', token);
 
-  type selectedItem = {
-    productCode: string;
-    itemCode: string;
-    itemName: string;
-    docEntry: string;
-    tranferId: string;
-  };
-
-  console.log('asdasdadawd', {data, selected});
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, []); // Gọi hàm fetchData khi component được mount
-
-  const fetchData = async () => {
     try {
-      const token = await AsyncStorage.getItem('userToken');
-      console.log(token);
-
       const response = await fetch(
         'https://pos.foxai.com.vn:8123/api/Production/getProduction',
         {
@@ -82,9 +76,14 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       );
 
       const text = await response.text();
-      console.log(' Raw response:', text);
+
+      // console.log(' Raw response:', text);
+
+      // console.log('responess1111111111111111111111111111', response);
 
       if (!response.ok) {
+        console.log('responseeeeeeeeeeeeeeee', response);
+
         console.error(' API lỗi:', response.status);
         return;
       }
@@ -92,7 +91,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       const json = JSON.parse(text); // Tự parse sau khi kiểm tra raw
       console.log(' Parsed JSON:', json);
 
-      const mappedData = json.items.map((item: any, index: number) => ({
+      const mappedData = json.items.map((item: any) => ({
         productCode: item.proCode,
         itemCode: item.itemCode,
         itemName: item.itemName,
@@ -107,11 +106,23 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       setLoading(false);
     }
   };
-
+  useEffect(() => {
+    if (userInfo?.accessToken) {
+      fetchDataApi(userInfo?.accessToken);
+    }
+  }, [userInfo]);
   // Logout event
   const handleLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userToken'); // Xóa token đăng nhập
+      const token = await AsyncStorage.getItem('userToken'); // Xóa token đăng nhập
+      await AsyncStorage.removeItem('userToken');
+      if (token!) {
+        console.log('old Token: ', token);
+        await AsyncStorage.removeItem('userToken');
+        console.log('Removed token');
+      } else {
+        console.log('no Token exist');
+      }
       console.log('User logged out successfully');
       navigation.navigate('Login');
     } catch (error) {
@@ -140,9 +151,11 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
         <View style={styles.logo} />
       </View>
 
-      <Text style={[styles.labelText, {margin: 30}]}>
-        {/* {`Hello, ${data..username}`} */}
-      </Text>
+      <Text
+        style={[
+          styles.labelText,
+          {margin: 30},
+        ]}>{`Hello,${userInfo?.user?.fullName}`}</Text>
 
       <View style={styles.body}>
         <View style={styles.box}>
@@ -201,113 +214,4 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // justifyContent: 'flex-start',
-    // alignItems: 'center',
-    backgroundColor: '#f2f2f2',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  header: {
-    flexDirection: 'row',
-    paddingHorizontal: 10,
-    height: 100,
-    backgroundColor: '#dcdcdc',
-    justifyContent: 'space-between',
-  },
-  logo: {
-    width: 100,
-    height: 100,
-    // marginBottom: 20,
-    resizeMode: 'contain', // Adjust the image size as needed
-    alignSelf: 'flex-start',
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    alignSelf: 'center',
-  },
-  labelText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    alignSelf: 'flex-end',
-    justifyContent: 'flex-start',
-  },
-  body: {
-    // flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // backgroundColor: 'red',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  box: {
-    // flex: 1,
-    justifyContent: 'space-between',
-    alignContent: 'center',
-    height: 400,
-    width: 800,
-    borderColor: '#000',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 50,
-  },
-  pickerContainer: {
-    borderColor: '#000', // Viền cho Picker
-    borderWidth: 1, // Độ dày viền của Picker
-    borderRadius: 10, // Bo góc cho Picker
-    backgroundColor: '#fff',
-    marginBottom: 20,
-  },
-  picker: {
-    borderColor: 'red',
-    borderWidth: 10,
-    borderRadius: 10,
-  },
-  row: {
-    height: 60,
-    alignContent: 'center',
-    justifyContent: 'center',
-    marginVertical: 5,
-    borderColor: '#000',
-    borderWidth: 1, // Độ dày viền của Picker
-    borderRadius: 10,
-  },
-  inputText: {
-    height: 40,
-    borderColor: '#000',
-    borderWidth: 1,
-    marginBottom: 10, // Thêm khoảng cách dưới trường nhập liệu
-    paddingLeft: 10, // Thêm padding cho trường nhập liệu
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    alignContent: 'center',
-    height: 100,
-    // backgroundColor: '#dcdcdc',
-    // paddingHorizontal: 10,
-    // paddingVertical: 10,
-  },
-  button: {
-    height: 50,
-    width: 150,
-    backgroundColor: '#4169E1',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 15,
-  },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 20,
-  },
-});
 export default WorkOrderScreen;
