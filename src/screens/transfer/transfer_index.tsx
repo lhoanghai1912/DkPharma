@@ -64,11 +64,10 @@ interface TranferScreenProp {
 }
 
 const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
-  //Get docEntry,tranferId from Menu
-  const {docEntry} = route.params;
-  const {tranferId} = route.params;
-
-  // console.log('1', route.params);
+  const {docEntry, tranferId} = route.params;
+  const [selectedTranferId, setSelectedTranferId] = useState(tranferId[0]);
+  console.log('defaultTranferId', selectedTranferId);
+  console.log(docEntry, '     ', selectedTranferId);
 
   const [data, setData] = useState<{
     items: MaterialItem[];
@@ -78,11 +77,28 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   const [docDate, setDocDate] = useState(new Date());
   const docDateEncoded = encodeURIComponent(docDate.toISOString());
   const [userInfo, setUserInfo] = useState<any>();
-
   const [selectDate, setSelectDate] = useState(
     moment(new Date()).format('DD/MM/YYYY'),
   );
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
+  const [visible, setVisible] = useState(false);
+
+  const getDataFromAsyncStorage = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('docEntryTranferData');
+      if (jsonValue != null) {
+        const data = JSON.parse(jsonValue);
+        setDocEntry(data.docEntry);
+        setTranferId(data.tranferId);
+      }
+    } catch (e) {
+      console.log('erro0000000000000000000000000000', e);
+    }
+  };
+
+  useEffect(() => {
+    getDataFromAsyncStorage();
+  }, []);
 
   const getData = async () => {
     try {
@@ -93,7 +109,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         setUserInfo(JSON.parse(tokenValue));
       }
     } catch (e) {
-      console.log('erro: ', e);
+      console.log('erro11111111111111: ', e);
     }
   };
 
@@ -103,12 +119,11 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
 
   const fetchData = async (token: string) => {
     console.log('tokennnnnnnnnnnnnn1111', token);
+    console.log(tranferId, ' ', docEntry, ' ', docDateEncoded);
 
     try {
-      console.log('tokennnnnnnnnnnn', token);
-
       const res = await axios.get<MaterialItem[]>(
-        `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${tranferId}?DocEntry=${docEntry}&docDate=${docDateEncoded}`,
+        `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${selectedTranferId}?DocEntry=${docEntry}&docDate=${docDateEncoded}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -116,6 +131,9 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           },
         },
       );
+
+      console.log('ressssssssssssssssssss', res);
+
       console.log('2', res);
       if ((res.status = 200)) {
         setData(res.data.items);
@@ -125,6 +143,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     } catch (err) {
       Alert.alert('API err', err?.message);
       console.error(err);
+      console.log('erroooooo', err);
     }
   };
 
@@ -133,12 +152,6 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
       fetchData(userInfo?.accessToken);
     }
   }, [userInfo]);
-
-  const updateField = (index: number, key: keyof MaterialItem, value: any) => {
-    // const newData = [...data];
-    // newData[index][key] = value;
-    // setData(newData);
-  };
 
   const renderItem = ({item, index}: any) => {
     console.log('33333333333333333333', item);
@@ -206,15 +219,23 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
               </TextInput>
             </View>
             <View>
-              {/* <TextInput style={styles.item_topContainer}>
-                Mã yêu cầu chuyển kho
-              </TextInput> */}
-
-              <Picker
-                selectedValue={docEntry}
-                onValueChange={itemValue => setDocEntry(itemValue)}
+              {/* <Picker
+                selectedValue={selectedTranferId}
+                onValueChange={itemValue => {
+                  setSelectedTranferId(itemValue);
+                }}
                 style={styles.picker}>
                 <Picker.Item label="Chọn mã yêu cầu chuyển kho" value="" />{' '}
+              </Picker> */}
+
+              <Picker
+                selectedValue={selectedTranferId}
+                onValueChange={(itemValue, itemIndex) =>
+                  setSelectedTranferId(itemValue)
+                }>
+                {tranferId.map((item: any) => {
+                  return <Picker.Item label={item} value={item} />;
+                })}
               </Picker>
 
               <TextInput style={styles.item_topContainer}>

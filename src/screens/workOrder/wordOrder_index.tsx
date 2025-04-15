@@ -37,12 +37,14 @@ interface WorkOrderScreenProps {
 }
 
 const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
-  // const infoUser=
-
   const [data, setData] = useState<any[]>([]);
+  const [docEntry, setDocEntry] = useState();
+  const [tranferId, setTranferId] = useState();
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<any>();
+
+  const [selectedLanguage, setSelectedLanguage] = useState();
 
   const getData = async () => {
     try {
@@ -111,6 +113,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       fetchDataApi(userInfo?.accessToken);
     }
   }, [userInfo]);
+
   // Logout event
   const handleLogout = async () => {
     try {
@@ -134,8 +137,8 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
   const handleMenu = () => {
     if (selected) {
       navigation.navigate('Menu', {
-        docEntry: selected.docEntry, // Truyền docEntry vào màn Menu
-        tranferId: selected.tranferId, // Truyền tranferId vào Menu
+        docEntry: selected.docEntry,
+        tranferId: selected.tranferId,
       });
     }
   };
@@ -162,13 +165,15 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
           {/* Dropdown */}
           <View style={styles.pickerContainer}>
             <Picker
-              selectedValue={selected?.itemCode ?? ''}
+              selectedValue={selected?.productCode ?? ''}
               onValueChange={itemValue => {
                 const selectedProduct = data.find(
-                  item => item.itemCode === itemValue,
+                  item => item.productCode === itemValue,
                 );
+
                 if (selectedProduct) {
                   setSelected(selectedProduct); // Store the full object
+                  console.log('selectedProduct', selectedProduct);
                 } else {
                   setSelected(null);
                 }
@@ -178,11 +183,12 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
               {data.map(item => (
                 <Picker.Item
                   label={item.productCode}
-                  value={item.itemCode}
+                  value={item.productCode}
                   key={item.productCode}
                 />
               ))}
             </Picker>
+
           </View>
           {/* Show Value */}
           <View style={styles.row}>

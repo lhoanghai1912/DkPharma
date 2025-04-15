@@ -21,10 +21,7 @@ type RootStackParamList = {
   Transfer: {docEntry: string; tranferId: string};
 };
 
-type MenuScreenNavigationProp = StackNavigationProp<
-  RootStackParamList,
-  'Transfer'
->;
+type MenuScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Menu'>;
 
 interface MenuScreenProps {
   navigation: MenuScreenNavigationProp;
@@ -32,14 +29,10 @@ interface MenuScreenProps {
 }
 
 const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
-  //Get docEntry,tranferId from Menu
-  const {docEntry} = route.params;
-  const {tranferId} = route.params;
-  const [userInfo, setUserInfo] = useState<any>();
+  const {docEntry, tranferId} = route.params;
+  console.log(docEntry, '     ', tranferId);
 
-  console.log('docEntry', docEntry);
-  // console.log('1111111111');
-  console.log('tranferId', tranferId);
+  const [userInfo, setUserInfo] = useState<any>();
 
   const getData = async () => {
     try {
@@ -61,7 +54,10 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
   // Transfer event
   const handleTransfer = async () => {
     try {
-      navigation.navigate('Transfer', {docEntry, tranferId});
+      navigation.navigate('Transfer', {
+        docEntry,
+        tranferId,
+      });
     } catch (error) {
       console.error('Error navigating to Transfer screen:', error);
     }
