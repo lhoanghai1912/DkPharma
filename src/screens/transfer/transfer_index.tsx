@@ -131,10 +131,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           },
         },
       );
-
       console.log('ressssssssssssssssssss', res);
-
-      console.log('2', res);
       if ((res.status = 200)) {
         setData(res.data.items);
       } else {
@@ -148,10 +145,10 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    if (userInfo?.accessToken) {
+    if (userInfo?.accessToken || tranferId == selectedTranferId) {
       fetchData(userInfo?.accessToken);
     }
-  }, [userInfo]);
+  }, [userInfo, selectedTranferId]);
 
   const renderItem = ({item, index}: any) => {
     console.log('33333333333333333333', item);
