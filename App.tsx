@@ -2,7 +2,7 @@ import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import LoginScreen from './src/screens/login/login_index.tsx';
-import WorkOrderScreen from './src/screens/workOrder/wordOrder_index.tsx';
+import WorkOrderScreen from './src/screens/workOrder/workOrder_index.tsx';
 import MenuScreen from './src/screens/menu/menu_index.tsx';
 import TransferScreen from './src/screens/transfer/transfer_index.tsx';
 
