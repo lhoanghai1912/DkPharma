@@ -6,6 +6,7 @@ import axios from 'axios';
 import moment from 'moment';
 import styles from './styles';
 
+
 import CheckBox from 'react-native-check-box';
 
 interface MaterialItem {
@@ -88,8 +89,6 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
       const jsonValue = await AsyncStorage.getItem('docEntryTranferData');
       if (jsonValue != null) {
         const data = JSON.parse(jsonValue);
-        setDocEntry(data.docEntry);
-        setTranferId(data.tranferId);
       }
     } catch (e) {
       console.log('erro0000000000000000000000000000', e);
@@ -131,7 +130,10 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           },
         },
       );
+
       console.log('ressssssssssssssssssss', res);
+
+      console.log('2', res);
       if ((res.status = 200)) {
         setData(res.data.items);
       } else {
@@ -145,10 +147,10 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   };
 
   useEffect(() => {
-    if (userInfo?.accessToken || tranferId == selectedTranferId) {
+    if (userInfo?.accessToken) {
       fetchData(userInfo?.accessToken);
     }
-  }, [userInfo, selectedTranferId]);
+  }, [userInfo]);
 
   const renderItem = ({item, index}: any) => {
     console.log('33333333333333333333', item);
