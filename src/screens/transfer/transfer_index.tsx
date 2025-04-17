@@ -5,7 +5,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import axios from 'axios';
 import moment from 'moment';
 import styles from './styles';
-
+import {Calendar, LocaleConfig} from 'react-native-calendars';
 
 import CheckBox from 'react-native-check-box';
 
@@ -37,11 +37,10 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
-  StyleSheet,
+  Modal,
   Alert,
   FlatList,
 } from 'react-native';
-import {red} from 'react-native-reanimated/lib/typescript/Colors';
 
 type selectedItem = {
   tranferId: string;
@@ -67,23 +66,37 @@ interface TranferScreenProp {
 const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   const {docEntry, tranferId} = route.params;
   const [selectedTranferId, setSelectedTranferId] = useState(tranferId[0]);
-  console.log('defaultTranferId', selectedTranferId);
-  console.log(docEntry, '     ', selectedTranferId);
-
+  const [docDate, setDocDate] = useState(
+    moment(new Date()).format('DD/MM/YYYY'),
+  );
+  const [userInfo, setUserInfo] = useState<any>();
+  const [selected, setSelected] = useState<selectedItem | undefined | null>();
+  const [isVisible, setIsVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  // const docDateEncoded = encodeURIComponent(docDate.toISOString());
+  const [selectedDate, setselectedDate] = useState(
+    moment(new Date()).format('DD/MM/YYYY'),
+  );
   const [data, setData] = useState<{
     items: MaterialItem[];
     apP_WTQ1?: MaterialItem[];
     status?: string;
   }>({items: []}); // Added optional status property
-  const [docDate, setDocDate] = useState(new Date());
-  const docDateEncoded = encodeURIComponent(docDate.toISOString());
-  const [userInfo, setUserInfo] = useState<any>();
-  const [selectDate, setSelectDate] = useState(
-    moment(new Date()).format('DD/MM/YYYY'),
-  );
-  const [selected, setSelected] = useState<selectedItem | undefined | null>();
-  const [visible, setVisible] = useState(false);
+  const formattedDate = new Date();
 
+  // console.log('ngay da chon ======================', selectedDate);
+  // console.log('ngay trong API ====================', docDateEncoded);
+  const docdDate1 = moment(selectedDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
+  // console.log('docdate1 ==========================================', docdDate1);
+
+  //Button Event
+  //View-Hide
+  const toggleVisibility = () => {
+    setIsVisible(!isVisible); // Đổi trạng thái khi nhấn nút
+    console.log('trang thai an hien: ', isVisible);
+  };
+
+  //API
   const getDataFromAsyncStorage = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('docEntryTranferData');
@@ -118,11 +131,11 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
 
   const fetchData = async (token: string) => {
     console.log('tokennnnnnnnnnnnnn1111', token);
-    console.log(tranferId, ' ', docEntry, ' ', docDateEncoded);
+    console.log(tranferId, ' ', docEntry, ' ', selectedDate);
 
     try {
       const res = await axios.get<MaterialItem[]>(
-        `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${selectedTranferId}?DocEntry=${docEntry}&docDate=${docDateEncoded}`,
+        `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${selectedTranferId}?DocEntry=${docEntry}&docDate=${docdDate1}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -153,7 +166,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   }, [userInfo]);
 
   const renderItem = ({item, index}: any) => {
-    console.log('33333333333333333333', item);
+    // console.log('33333333333333333333', item);
     return (
       <View style={styles.content_row}>
         <Text style={[styles.col_STT]}>{index + 1}</Text>
@@ -191,64 +204,108 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
       </View>
 
       {/* //Body */}
+
       <View style={styles.body}>
         {/* //Top cont */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            Alert.alert('Modal has been closed.');
+            setModalVisible(!modalVisible);
+          }}>
+          <View style={[styles.wrapModal]}>
+            <Calendar
+              style={styles.modal}
+              onDayPress={day => {
+                const formattedDate = moment(day.dateString).format(
+                  'DD/MM/YYYY',
+                );
+                setDocDate(formattedDate);
+              }}
+              markedDates={{
+                [docDate]: {
+                  selected: true,
+                  disableTouchEvent: true,
+                  dotColor: 'orange',
+                },
+              }}
+            />
+            <View style={styles.buttonWrap}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  Alert.alert('abc', docDate),
+                    setselectedDate(docDate),
+                    setModalVisible(false);
+                  // setselectedDate = docDate,
+                }}>
+                <Text style={styles.textform}>Xác nhận</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.textform}>Hủy bỏ</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
         <View style={styles.topContainer}>
           <View style={styles.col_topContainer}>
             <View>
-              <TextInput style={styles.item_topContainer}>
+              <TextInput editable={false} style={styles.item_topContainer}>
                 {`Mã CT: ${data.productionCode}`}
               </TextInput>
-              <TextInput style={styles.item_topContainer}>
-                {`Ngày xuất kho: ${data.docDate}`}
-              </TextInput>
-              <TextInput style={styles.item_topContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => setModalVisible(true)}>
+                <TextInput editable={false} style={styles.item_topContainer}>
+                  {`Ngày xuất kho: ${selectedDate}`}
+                </TextInput>
+              </TouchableOpacity>
+              <TextInput editable={false} style={styles.item_topContainer}>
                 {`Trạng thái: ${data.status || 'N/A'}`}
               </TextInput>
             </View>
             <View>
-              <TextInput style={styles.item_topContainer}>
+              <TextInput editable={false} style={styles.item_topContainer}>
                 {`Lệnh sản xuất: ${data.productionCode}`}
               </TextInput>
-              <TextInput style={styles.item_topContainer}>
+              <TextInput editable={false} style={styles.item_topContainer}>
                 {`Tên thành phẩm: ${data.itemName}`}
               </TextInput>
-              <TextInput style={styles.item_topContainer}>
+              <TextInput editable={false} style={styles.item_topContainer}>
                 {`Kho xuất: ${data.whsCode}`}
               </TextInput>
             </View>
             <View>
-              {/* <Picker
-                selectedValue={selectedTranferId}
-                onValueChange={itemValue => {
-                  setSelectedTranferId(itemValue);
-                }}
-                style={styles.picker}>
-                <Picker.Item label="Chọn mã yêu cầu chuyển kho" value="" />{' '}
-              </Picker> */}
-
               <Picker
                 selectedValue={selectedTranferId}
                 onValueChange={(itemValue, itemIndex) =>
                   setSelectedTranferId(itemValue)
                 }>
                 {tranferId.map((item: any) => {
-                  return <Picker.Item label={item} value={item} />;
+                  return <Picker.Item label={[item]} value={item} />;
                 })}
               </Picker>
 
-              <TextInput style={styles.item_topContainer}>
+              <TextInput editable={false} style={styles.item_topContainer}>
                 {`Mã thành phẩm: ${data.itemCode}`}
               </TextInput>
-              <TextInput style={styles.item_topContainer}>
+              <TextInput editable={false} style={styles.item_topContainer}>
                 {`Người nhập: ${data.creator}`}
               </TextInput>
             </View>
           </View>
         </View>
         {/* Table Header */}
-        <View style={styles.table}>
-          <View style={styles.content_row}>
+        <View style={[styles.table]}>
+          <View
+            style={[
+              styles.content_row,
+              {display: modalVisible ? 'none' : 'flex'},
+            ]}>
             <Text style={[styles.col_STT]}>STT</Text>
             <Text style={styles.content_cell}>Mã NVL</Text>
             <Text style={styles.content_cell}>Tên NVL</Text>
@@ -266,10 +323,13 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
             data={data.apP_WTQ1 || data.items} // Fallback to items if apP_WTQ1 is undefined
             renderItem={renderItem}
             keyExtractor={item => item.itemCode.toString()}
-            style={{
-              flex: 1,
-              width: '100%',
-            }}
+            style={[
+              {
+                flex: 1,
+                width: '100%',
+              },
+              {display: modalVisible ? 'none' : 'flex'},
+            ]}
           />
         </View>
       </View>

@@ -1,7 +1,30 @@
-import {StyleSheet} from 'react-native';
+import {Modal, StyleSheet} from 'react-native';
 
 
 const styles = StyleSheet.create({
+  wrapModal:{
+    flex:1,
+    width:'auto',
+    justifyContent:'center',
+    alignItems:'center',
+    alignContent:'center',
+  },
+  modal:{
+    // flex:1,
+    height:300,
+    width:500,
+    justifyContent:'center',
+    alignContent:'center',
+  },
+  buttonWrap:{
+    // flex:1,
+    width:500,
+    flexDirection:'row',
+    alignContent:'center',
+    alignItems:'center',
+    justifyContent:'space-evenly',
+    backgroundColor:'blue',
+  },
   container: {
     flex: 1,
     borderWidth:1,
@@ -15,6 +38,7 @@ const styles = StyleSheet.create({
     height: 'auto',
     backgroundColor: '#dcdcdc',
     justifyContent: 'space-between',
+    
   },
   headerText_header: {
     fontSize: 24,
@@ -48,7 +72,15 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'center',
   },
-
+  toggleView: {
+    flex: 1,
+    width: '80%',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   picker: {
     // flex: 1,
     width: 300,

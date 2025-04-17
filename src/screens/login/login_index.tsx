@@ -33,6 +33,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [username, setUsername] = useState<string>('Admin');
   const [password, setPassword] = useState<string>('1234');
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  
 
   const handleLogin = async () => {
     if (!username || !password) {
