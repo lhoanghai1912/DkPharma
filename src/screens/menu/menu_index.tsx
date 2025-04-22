@@ -19,6 +19,8 @@ type RootStackParamList = {
   Menu: undefined;
   WorkOrder: undefined;
   Transfer: {docEntry: string; tranferId: string};
+  Login: undefined;
+  UserInfo: {docEntry: string; tranferId: string};
 };
 
 type MenuScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Menu'>;
@@ -51,6 +53,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
     getData();
   }, []);
 
+  //Button event
   // Transfer event
   const handleTransfer = async () => {
     try {
@@ -63,6 +66,34 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
     }
   };
 
+  // UserInfo Event
+  const handleUserInfo = async () => {
+    try {
+      navigation.navigate('UserInfo', {docEntry, tranferId});
+    } catch (error) {
+      console.error('Error get userInfo:', error);
+    }
+  };
+
+  // Logout event
+  const handleLogout = async () => {
+    try {
+      const token = await AsyncStorage.getItem('userToken'); // Xóa token đăng nhập
+      await AsyncStorage.removeItem('userToken');
+      if (token!) {
+        console.log('old Token: ', token);
+        await AsyncStorage.removeItem('userToken');
+        console.log('Removed token');
+      } else {
+        console.log('no Token exist');
+      }
+      console.log('User logged out successfully');
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       //Header
@@ -72,16 +103,12 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
           style={styles.logo}
         />
         <Text style={styles.headerText}>Menu</Text>
-        <View style={styles.headerButtons}>
-          <Image
-            source={require('../../assests/icons/settings.png')}
-            style={styles.logo1}
-          />
+        <TouchableOpacity onPress={handleUserInfo} style={styles.headerButtons}>
           <Image
             source={require('../../assests/icons/user.png')}
             style={styles.logo1}
           />
-        </View>
+        </TouchableOpacity>
       </View>
       //Body
       <View style={styles.container}>
@@ -155,7 +182,7 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, {width: 300}]}
-            onPress={() => console.log('Button pressed')}>
+            onPress={handleLogout}>
             <Text style={styles.buttonText}>Đăng xuất</Text>/
           </TouchableOpacity>
         </View>

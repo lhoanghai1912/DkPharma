@@ -6,8 +6,13 @@ import axios from 'axios';
 import moment from 'moment';
 import styles from './styles';
 import {Calendar, LocaleConfig} from 'react-native-calendars';
-
-import CheckBox from 'react-native-check-box';
+import {
+  Camera,
+  useCameraDevice,
+  useCameraPermission,
+  useMicrophonePermission,
+  useCodeScanner,
+} from 'react-native-vision-camera';
 
 interface MaterialItem {
   creator: string;
@@ -40,6 +45,7 @@ import {
   Modal,
   Alert,
   FlatList,
+  StyleSheet,
 } from 'react-native';
 
 type selectedItem = {
@@ -67,29 +73,57 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   const {docEntry, tranferId} = route.params;
   const [selectedTranferId, setSelectedTranferId] = useState(tranferId[0]);
   const [docDate, setDocDate] = useState(
-    moment(new Date()).format('DD/MM/YYYY'),
+    moment(new Date()).format('YYYY-MM-DD'),
   );
   const [userInfo, setUserInfo] = useState<any>();
-  const [selected, setSelected] = useState<selectedItem | undefined | null>();
   const [isVisible, setIsVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  // const docDateEncoded = encodeURIComponent(docDate.toISOString());
   const [selectedDate, setselectedDate] = useState(
-    moment(new Date()).format('DD/MM/YYYY'),
+    moment(docDate).format('DD/MM/YYYY'),
   );
   const [data, setData] = useState<{
     items: MaterialItem[];
     apP_WTQ1?: MaterialItem[];
     status?: string;
   }>({items: []}); // Added optional status property
-  const formattedDate = new Date();
 
-  // console.log('ngay da chon ======================', selectedDate);
-  // console.log('ngay trong API ====================', docDateEncoded);
-  const docdDate1 = moment(selectedDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
-  // console.log('docdate1 ==========================================', docdDate1);
+  const docdDateAPI = moment(selectedDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
 
+  // vision camera react native
+  const {hasPermission, requestPermission} = useCameraPermission();
+  const [isActive, setIsActive] = useState(false); // State for camera activation
+  // const {hasPermission, requestPermission} = useMicrophonePermission();
+  const device = useCameraDevice('back');
+
+  console.log('đã được cấp quyền chưa ?', hasPermission);
   //Button Event
+  //QR
+  const handleQR = () => {
+    requestPermission();
+    if (hasPermission == true) {
+      console.log('Request Permission Accpected');
+      setIsActive(true);
+      if (device == null) {
+        console.log('Device not found');
+        return (
+          <View>
+            <Text>Device not found</Text>
+          </View>
+        );
+      }
+    } else {
+      console.log('Request Permission Denied');
+    }
+  };
+
+  //Scan QR
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr', 'ean-13'],
+    onCodeScanned: (codes: any) => {
+      console.log(`Scanned ${codes.value} codes!`);
+    },
+  });
+
   //View-Hide
   const toggleVisibility = () => {
     setIsVisible(!isVisible); // Đổi trạng thái khi nhấn nút
@@ -135,7 +169,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
 
     try {
       const res = await axios.get<MaterialItem[]>(
-        `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${selectedTranferId}?DocEntry=${docEntry}&docDate=${docdDate1}`,
+        `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${selectedTranferId}?DocEntry=${docEntry}&docDate=${docdDateAPI}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -163,7 +197,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     if (userInfo?.accessToken) {
       fetchData(userInfo?.accessToken);
     }
-  }, [userInfo]);
+  }, [docdDateAPI, selectedTranferId, userInfo]);
 
   const renderItem = ({item, index}: any) => {
     // console.log('33333333333333333333', item);
@@ -176,7 +210,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         <Text style={styles.content_cell}>
           {moment(item.expDate).format('L')}
         </Text>
-        <TouchableOpacity style={styles.content_cell} onPress={() => {}}>
+        <TouchableOpacity style={styles.content_cell} onPress={handleQR}>
           <Image
             source={require('../../assests/icons/qr.png')}
             style={styles.img}
@@ -219,10 +253,13 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
             <Calendar
               style={styles.modal}
               onDayPress={day => {
-                const formattedDate = moment(day.dateString).format(
-                  'DD/MM/YYYY',
-                );
-                setDocDate(formattedDate);
+                // const formattedDate = moment(day.dateString).format(
+                //   'DD/MM/YYYY',
+                // const day1 = moment(formattedDate,'DD/MM/YYYY').format('YYYY-MM-DD'),
+                setDocDate(day.dateString);
+
+                // setDocDate(formattedDate);
+                Alert.alert('docDate:', docDate);
               }}
               markedDates={{
                 [docDate]: {
@@ -237,7 +274,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
                 style={styles.button}
                 onPress={() => {
                   Alert.alert('abc', docDate),
-                    setselectedDate(docDate),
+                    setselectedDate(moment(docDate).format('DD/MM/YYYY')),
                     setModalVisible(false);
                   // setselectedDate = docDate,
                 }}>
@@ -346,6 +383,18 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           <Text style={styles.textform}>Đồng bộ</Text>
         </TouchableOpacity>
       </View>
+
+      {device && (
+        <Camera
+          style={[
+            StyleSheet.absoluteFill,
+            {display: isActive ? 'flex' : 'none'},
+          ]}
+          device={device}
+          isActive={isActive}
+          codeScanner={codeScanner}
+        />
+      )}
     </View>
   );
 };

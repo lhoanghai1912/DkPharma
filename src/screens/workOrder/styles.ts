@@ -7,10 +7,6 @@ const styles = StyleSheet.create({
     // alignItems: 'center',
     backgroundColor: '#f2f2f2',
   },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
   header: {
     flexDirection: 'row',
     paddingHorizontal: 10,
@@ -37,11 +33,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   body: {
-    // flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor: 'red',
-    marginTop: 20,
     marginBottom: 20,
   },
   box: {

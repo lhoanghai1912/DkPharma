@@ -3,6 +3,7 @@ import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
 import styles from './styles';
+import Images from '../../contants/imageContant';
 import {
   View,
   Text,
@@ -11,6 +12,7 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
+import {ScrollView} from 'react-native-gesture-handler';
 
 type selectedItem = {
   productCode: string;
@@ -146,10 +148,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image
-          source={require('../../assests/images/logo.png')}
-          style={styles.logo}
-        />
+        <Image source={Images.logo} style={styles.logo} />
         <Text style={styles.headerText}>Work Order</Text>
         <View style={styles.logo} />
       </View>
@@ -159,7 +158,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
           styles.labelText,
           {margin: 30},
         ]}>{`Hello,${userInfo?.user?.fullName}`}</Text>
-
       <View style={styles.body}>
         <View style={styles.box}>
           {/* Dropdown */}
@@ -188,7 +186,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
                 />
               ))}
             </Picker>
-
           </View>
           {/* Show Value */}
           <View style={styles.row}>
