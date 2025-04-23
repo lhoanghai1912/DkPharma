@@ -48,6 +48,10 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
       // error reading value
     }
   };
+  console.log(
+    'userinfo111111111111111111111111111111111111111111',
+    userInfo?.user,
+  );
 
   useEffect(() => {
     getData();

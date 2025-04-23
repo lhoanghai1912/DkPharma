@@ -31,7 +31,6 @@ interface UserInfoScreenProps {
 const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
   //
   const {docEntry, tranferId} = route.params;
-  console.log(docEntry, '   ', tranferId);
 
   const [checked, setChecked] = React.useState('first');
   const [userInfo, setUserInfo] = useState<any>();
@@ -67,8 +66,6 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
     getData();
   }, []);
 
-  console.log(userInfo);
-
   // Button event
   // Submit event
   const handleSubmit = async () => {
@@ -81,7 +78,10 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
       return;
     } else {
       const updatedUserInfo = {
-        userInfo,
+        id: userInfo?.user?.id,
+        fullName: userInfo?.user?.fullName,
+        center: userInfo?.user?.center,
+        department: userInfo?.user?.department,
       };
       try {
         const jsonValueUpdate = JSON.stringify(updatedUserInfo);
@@ -96,7 +96,9 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
           },
           body: JSON.stringify({
             id: userInfo?.user?.id,
-            userInfo,
+            fullName: userInfo?.user?.fullName,
+            center: userInfo?.user?.center,
+            department: userInfo?.user?.department,
           }),
         });
         console.log('resssssss========', respone);
@@ -108,21 +110,21 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
 
         if (respone.status === 200) {
           try {
-            await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.removeItem('userInfo');
             console.log('removed============');
           } catch (e) {
             console.log('error', e);
           }
           const updateUserToken = JSON.stringify({
-            userInfo,
             user: updatedUserInfo,
           });
           await AsyncStorage.setItem('userToken', updateUserToken);
+          // await AsyncStorage.setItem('userInfo', userInfo);
           Alert.alert('thanh cong');
           console.log('thanh cong');
         } else {
-          Alert.alert('that bai');
           console.log('that bai');
+          Alert.alert('that bai');
         }
         // console.log('update successful \n new data:', updatedUserInfo);
       } catch (e) {
