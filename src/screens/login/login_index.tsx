@@ -114,7 +114,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         </View>
       </View>
       {/* <Text></Text> */}
-      // Login button
+      {/* // Login button */}
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Đăng nhập</Text>
       </TouchableOpacity>

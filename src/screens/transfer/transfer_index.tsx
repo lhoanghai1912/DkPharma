@@ -76,43 +76,33 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     moment(new Date()).format('YYYY-MM-DD'),
   );
   const [userInfo, setUserInfo] = useState<any>();
+  const [isBlocked, setIsBlocked] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedDate, setselectedDate] = useState(
     moment(docDate).format('DD/MM/YYYY'),
   );
   const [data, setData] = useState<{
-    creator: any;
-    productionCode: any;
-    itemName: any;
-    whsCode: any;
-    itemCode: any;
     items: MaterialItem[];
     apP_WTQ1?: MaterialItem[];
     status?: string;
-  }>({
-    creator: '',
-    productionCode: '',
-    itemName: '',
-    whsCode: '',
-    itemCode: '',
-    items: [],
-    apP_WTQ1: undefined,
-    status: undefined,
-  }); // Added optional status property
+  }>({items: []}); // Added optional status property
 
   const docdDateAPI = moment(selectedDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
 
   // vision camera react native
   const {hasPermission, requestPermission} = useCameraPermission();
   const [isActive, setIsActive] = useState(false); // State for camera activation
+  // const {hasPermission, requestPermission} = useMicrophonePermission();
   const device = useCameraDevice('back');
 
+  console.log('đã được cấp quyền chưa ?', hasPermission);
   //Button Event
   //QR
   const handleQR = () => {
     requestPermission();
     if (hasPermission == true) {
+      console.log('Request Permission Accpected');
       setIsActive(true);
       if (device == null) {
         console.log('Device not found');
@@ -122,10 +112,24 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           </View>
         );
       }
+      setIsBlocked(!isBlocked);
     } else {
       console.log('Request Permission Denied');
     }
   };
+
+  //Go Back event
+  const handleGoBack = () => {
+    console.log('goback pressed');
+    setIsActive(!isActive);
+    setIsBlocked(!isBlocked);
+  };
+  if (isActive === true) {
+    console.log('camera dang bat');
+  } else {
+    console.log('camera phai tat');
+  }
+  console.log('trang thai QR text', isActive);
 
   //Scan QR
   const codeScanner = useCodeScanner({
@@ -149,7 +153,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         const data = JSON.parse(jsonValue);
       }
     } catch (e) {
-      console.log('erro', e);
+      console.log('erro0000000000000000000000000000', e);
     }
   };
 
@@ -175,6 +179,9 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   }, []);
 
   const fetchData = async (token: string) => {
+    console.log('tokennnnnnnnnnnnnn1111', token);
+    console.log(tranferId, ' ', docEntry, ' ', selectedDate);
+
     try {
       const res = await axios.get<MaterialItem[]>(
         `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${selectedTranferId}?DocEntry=${docEntry}&docDate=${docdDateAPI}`,
@@ -185,7 +192,10 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           },
         },
       );
-      console.log('data', res);
+
+      console.log('ressssssssssssssssssss', res);
+
+      console.log('2', res);
       if ((res.status = 200)) {
         setData(res.data.items);
       } else {
@@ -205,6 +215,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   }, [docdDateAPI, selectedTranferId, userInfo]);
 
   const renderItem = ({item, index}: any) => {
+    // console.log('33333333333333333333', item);
     return (
       <View style={styles.content_row}>
         <Text style={[styles.col_STT]}>{index + 1}</Text>
@@ -221,176 +232,216 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           />
         </TouchableOpacity>
         <Text style={styles.content_cell}>{item.requiredQuantity}</Text>
-        <Text style={styles.content_cell}>{item.calculatedQuantity}</Text>
-        <Text style={styles.content_cell}>{item.quantity}</Text>
+        <TextInput
+          editable={isBlocked ? false : true}
+          style={[
+            styles.content_cell,
+            {backgroundColor: isBlocked ? 'grey' : 'white'},
+          ]}>
+          {item.quantity}
+        </TextInput>
         <Text style={styles.content_cell}>{item.remainingQuantity}</Text>
+        <Text style={styles.content_cell}>{item.calculatedQuantity}</Text>
         <Text style={styles.content_cell}>{item.uomCode}</Text>
-        <Text style={styles.content_cell}>{item.note}</Text>
+        <TextInput
+          editable={isBlocked ? false : true}
+          style={[
+            styles.content_cell,
+            {backgroundColor: isBlocked ? 'grey' : 'white'},
+          ]}>
+          {item.note}
+        </TextInput>
       </View>
     );
   };
   return (
     <View style={styles.container}>
-      {/* //Header */}
-      <View style={styles.header}>
-        <Image
-          source={require('../../assests/images/logo.png')}
-          style={styles.logo}
-        />
-        <Text style={styles.headerText_header}>Transfer</Text>
-        <View style={styles.logo} />
-      </View>
-
-      {/* //Body */}
-
-      <View style={styles.body}>
-        {/* //Top cont */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => {
-            Alert.alert('Modal has been closed.');
-            setModalVisible(!modalVisible);
-          }}>
-          <View style={[styles.wrapModal]}>
-            <Calendar
-              style={styles.modal}
-              onDayPress={day => {
-                setDocDate(day.dateString);
-              }}
-              markedDates={{
-                [docDate]: {
-                  selected: true,
-                  disableTouchEvent: true,
-                  dotColor: 'orange',
-                },
-              }}
-            />
-            <View style={styles.buttonWrap}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => {
-                  setselectedDate(moment(docDate).format('DD/MM/YYYY')),
-                    setModalVisible(false);
-                }}>
-                <Text style={styles.textform}>Xác nhận</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setModalVisible(false)}>
-                <Text style={styles.textform}>Hủy bỏ</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-        <View style={styles.topContainer}>
-          <View style={styles.col_topContainer}>
-            <View>
-              <TextInput editable={false} style={styles.item_topContainer}>
-                {`Mã CT: ${data.productionCode}`}
-              </TextInput>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => setModalVisible(true)}>
-                <TextInput editable={false} style={styles.item_topContainer}>
-                  {`Ngày xuất kho: ${selectedDate}`}
-                </TextInput>
-              </TouchableOpacity>
-              <TextInput editable={false} style={styles.item_topContainer}>
-                {`Trạng thái: ${data.status || 'N/A'}`}
-              </TextInput>
-            </View>
-            <View>
-              <TextInput editable={false} style={styles.item_topContainer}>
-                {`Lệnh sản xuất: ${data.productionCode}`}
-              </TextInput>
-              <TextInput editable={false} style={styles.item_topContainer}>
-                {`Tên thành phẩm: ${data.itemName}`}
-              </TextInput>
-              <TextInput editable={false} style={styles.item_topContainer}>
-                {`Kho xuất: ${data.whsCode}`}
-              </TextInput>
-            </View>
-            <View>
-              <Picker
-                selectedValue={selectedTranferId}
-                onValueChange={(itemValue, itemIndex) =>
-                  setSelectedTranferId(itemValue)
-                }>
-                {tranferId.map((item: any) => {
-                  return (
-                    <Picker.Item label={item} value={item} key={tranferId} />
-                  );
-                })}
-              </Picker>
-              <TextInput editable={false} style={styles.item_topContainer}>
-                {`Mã thành phẩm: ${data.itemCode}`}
-              </TextInput>
-              <TextInput editable={false} style={styles.item_topContainer}>
-                {`Người nhập: ${data.creator}`}
-              </TextInput>
-            </View>
-          </View>
-        </View>
-        {/* Table Header */}
-        <View style={[styles.table]}>
-          <View
-            style={[
-              styles.content_row,
-              {display: modalVisible ? 'none' : 'flex'},
-            ]}>
-            <Text style={[styles.col_STT]}>STT</Text>
-            <Text style={styles.content_cell}>Mã NVL</Text>
-            <Text style={styles.content_cell}>Tên NVL</Text>
-            <Text style={styles.content_cell}>Số lô</Text>
-            <Text style={styles.content_cell}>Hạn sử dụng</Text>
-            <Text style={styles.content_cell}>Kiểm tra QR</Text>
-            <Text style={styles.content_cell}>SL theo yc</Text>
-            <Text style={styles.content_cell}>SL xuất thực tế</Text>
-            <Text style={styles.content_cell}>SL luỹ kế</Text>
-            <Text style={styles.content_cell}>SL Còn lại</Text>
-            <Text style={styles.content_cell}>ĐVT</Text>
-            <Text style={styles.content_cell}>Ghi chú</Text>
-          </View>
-          <FlatList
-            data={data.apP_WTQ1 || data.items} // Fallback to items if apP_WTQ1 is undefined
-            renderItem={renderItem}
-            keyExtractor={item => item.itemCode.toString()}
-            style={[
-              {
-                flex: 1,
-                width: '100%',
-              },
-              {display: modalVisible ? 'none' : 'flex'},
-            ]}
+      <View
+        style={[{display: isActive ? 'none' : 'flex', flex: isActive ? 0 : 1}]}>
+        {/* //Header */}
+        <View style={styles.header}>
+          <Image
+            source={require('../../assests/images/logo.png')}
+            style={styles.logo}
           />
+          <Text style={styles.headerText_header}>Transfer</Text>
+          <View style={styles.logo} />
+        </View>
+
+        {/* //Body */}
+
+        <View style={styles.body}>
+          {/* //Top cont */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+              setModalVisible(!modalVisible);
+            }}>
+            <View style={[styles.wrapModal]}>
+              <Calendar
+                style={styles.modal}
+                onDayPress={day => {
+                  setDocDate(day.dateString);
+                  Alert.alert('docDate:', docDate);
+                }}
+                markedDates={{
+                  [docDate]: {
+                    selected: true,
+                    disableTouchEvent: true,
+                    dotColor: 'orange',
+                  },
+                }}
+              />
+              <View style={styles.buttonWrap}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                    Alert.alert('abc', docDate),
+                      setselectedDate(moment(docDate).format('DD/MM/YYYY')),
+                      setModalVisible(false);
+                  }}>
+                  <Text style={styles.textform}>Xác nhận</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setModalVisible(false)}>
+                  <Text style={styles.textform}>Hủy bỏ</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+          <View style={styles.topContainer}>
+            <View style={styles.col_topContainer}>
+              <View>
+                <Text style={styles.item_topContainer}>
+                  {`Mã CT: ${data.productionCode}`}
+                </Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setModalVisible(true)}>
+                  <Text style={styles.item_topContainer}>
+                    {`Ngày xuất kho: ${selectedDate}`}
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.item_topContainer}>
+                  {`Trạng thái: ${data.status || 'N/A'}`}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.item_topContainer}>
+                  {`Lệnh sản xuất: ${data.productionCode}`}
+                </Text>
+                <Text style={styles.item_topContainer}>
+                  {`Tên thành phẩm: ${data.itemName}`}
+                </Text>
+                <Text style={styles.item_topContainer}>
+                  {`Kho xuất: ${data.whsCode}`}
+                </Text>
+              </View>
+              <View>
+                <Picker
+                  selectedValue={selectedTranferId}
+                  onValueChange={(itemValue, itemIndex) =>
+                    setSelectedTranferId(itemValue)
+                  }>
+                  {tranferId.map((item: any) => {
+                    return <Picker.Item label={[item]} value={item} />;
+                  })}
+                </Picker>
+
+                <Text style={styles.item_topContainer}>
+                  {`Mã thành phẩm: ${data.itemCode}`}
+                </Text>
+                <Text style={styles.item_topContainer}>
+                  {`Người nhập: ${data.creator}`}
+                </Text>
+              </View>
+            </View>
+          </View>
+          {/* Table Header */}
+          <View style={[styles.table]}>
+            <View
+              style={[
+                styles.content_row,
+                {display: modalVisible ? 'none' : 'flex'},
+              ]}>
+              <Text style={[styles.col_STT]}>STT</Text>
+              <Text style={styles.content_cell}>Mã NVL</Text>
+              <Text style={styles.content_cell}>Tên NVL</Text>
+              <Text style={styles.content_cell}>Số lô</Text>
+              <Text style={styles.content_cell}>Hạn sử dụng</Text>
+              <Text style={styles.content_cell}>Kiểm tra QR</Text>
+              <Text style={styles.content_cell}>SL theo yc</Text>
+              <TextInput editable={false} style={styles.content_cell}>
+                SL xuất thực tế
+              </TextInput>
+              <Text style={styles.content_cell}>SL luỹ kế</Text>
+              <Text style={styles.content_cell}>SL Còn lại</Text>
+              <Text style={styles.content_cell}>ĐVT</Text>
+              <TextInput editable={false} style={styles.content_cell}>
+                Ghi chú
+              </TextInput>
+            </View>
+            <FlatList
+              data={data.apP_WTQ1 || data.items} // Fallback to items if apP_WTQ1 is undefined
+              renderItem={renderItem}
+              keyExtractor={item => item.itemCode.toString()}
+              style={[
+                {
+                  flex: 1,
+                  width: '100%',
+                },
+                {display: modalVisible ? 'none' : 'flex'},
+              ]}
+            />
+          </View>
+        </View>
+        {/* //Bottom cont */}
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => console.log('pressed')}>
+            <Text style={styles.textform}>Tạo phiếu</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => console.log('pressed')}>
+            <Text style={styles.textform}>Đồng bộ</Text>
+          </TouchableOpacity>
         </View>
       </View>
-      {/* //Bottom cont */}
-      <View style={styles.bottomContainer}>
+      <View
+        style={[{display: isActive ? 'flex' : 'none', flex: isActive ? 1 : 0}]}>
+        <View style={{flex: 1}}>
+          {device && (
+            <Camera
+              style={[
+                StyleSheet.absoluteFill,
+                {display: isActive ? 'flex' : 'none', flex: 1},
+              ]}
+              device={device}
+              isActive={isActive}
+              codeScanner={codeScanner}
+            />
+          )}
+        </View>
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('pressed')}>
-          <Text style={styles.textform}>Tạo phiếu</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => console.log('pressed')}>
-          <Text style={styles.textform}>Đồng bộ</Text>
+          style={[
+            styles.button,
+            // {zIndex: 1},
+            {
+              display: isActive ? 'flex' : 'none',
+              width: 'auto',
+              alignItems: 'center',
+            },
+          ]}
+          onPress={handleGoBack}>
+          <Text>Back</Text>
         </TouchableOpacity>
       </View>
-      {device && (
-        <Camera
-          style={[
-            StyleSheet.absoluteFill,
-            {display: isActive ? 'flex' : 'none'},
-          ]}
-          device={device}
-          isActive={isActive}
-          codeScanner={codeScanner}
-        />
-      )}
     </View>
   );
 };

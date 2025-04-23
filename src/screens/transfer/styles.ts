@@ -23,18 +23,19 @@ const styles = StyleSheet.create({
     alignContent:'center',
     alignItems:'center',
     justifyContent:'space-evenly',
-    backgroundColor:'blue',
   },
   container: {
     flex: 1,
     borderWidth:1,
-    borderRadius:15,
+    borderRadius:5,
     padding:5,
+  },
+  container1: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
     paddingHorizontal: 10,
-    // marginVertical:5,
     height: 'auto',
     backgroundColor: '#dcdcdc',
     justifyContent: 'space-between',
@@ -52,7 +53,6 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    backgroundColor: 'white',
     borderBottomWidth: 1,
     borderRadius: 5,
     padding: 5,
@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'center',
     borderColor: '#000',
-    // backgroundColor: 'red',
   },
   item_topContainer: {
     // flex: 1,
@@ -76,7 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '80%',
     padding: 20,
-    backgroundColor: '#fff',
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
@@ -87,7 +85,6 @@ const styles = StyleSheet.create({
     borderColor: 'red',
     borderWidth: 10,
     borderRadius: 10,
-    backgroundColor: 'red',
   },
 
   //body container
@@ -95,11 +92,9 @@ const styles = StyleSheet.create({
   body: {
     flex: 5,
     height: '100%',
-    // width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     borderTopWidth:1,
-    // marginVertical:5,
   },
   table: {
     flex: 1,
@@ -133,7 +128,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopWidth: 1,
     borderRadius: 1,
-    // backgroundColor: 'red',
   },
   button:{
     alignItems:'center',

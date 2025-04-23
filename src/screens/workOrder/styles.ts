@@ -2,8 +2,10 @@ import {StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
+    height:600,
     backgroundColor: '#f2f2f2',
+    // display:'none',
   },
   header: {
     flexDirection: 'row',
