@@ -136,6 +136,14 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
           styles.labelText,
           {margin: 30},
         ]}>{`Hello,${userInfo?.user?.fullName}`}</Text>
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.button} onPress={handleMenu}>
+          <Text style={styles.buttonText}>Xác nhận</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <Text style={styles.buttonText}>Đăng xuất</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.body}>
         <View style={styles.box}>
           {/* Dropdown */}
@@ -181,14 +189,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
             />
           </View>
         </View>
-      </View>
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.button} onPress={handleMenu}>
-          <Text style={styles.buttonText}>Xác nhận</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLogout}>
-          <Text style={styles.buttonText}>Đăng xuất</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
