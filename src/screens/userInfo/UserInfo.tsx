@@ -12,11 +12,12 @@ import styles from './styles';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RadioButton} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Item} from 'react-native-paper/lib/typescript/components/Drawer/Drawer';
+import Icons from '../../contants/iconContant';
 
 type RootStackParamList = {
   UserInfo: undefined;
   Menu: {docEntry: string; tranferId: string};
+  Login: undefined;
 };
 
 type UserInfoScreenNavigationProp = StackNavigationProp<
@@ -29,14 +30,22 @@ interface UserInfoScreenProps {
   route: any;
 }
 const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
-  //
   const {docEntry, tranferId} = route.params;
 
   const [checked, setChecked] = React.useState('first');
   const [userInfo, setUserInfo] = useState<any>();
+  const [oldPassword, setOldPassword] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [newPasswordRef, setNewPasswordRef] = useState<string>('');
+  const [isOldPassWordVisible, setIsOldPassWordVisible] =
+    useState<boolean>(false);
+  const [isNewPassWordVisible, setisNewPassWordVisible] =
+    useState<boolean>(false);
+  const [isNewPassWordVisibleRef, setisNewPassWordVisibleRef] =
+    useState<boolean>(false);
+  // console.log('userInfo======>', userInfo);
 
-  console.log('userInfo======>', userInfo);
-
+  //Text change
   const handleInputChange = (value: string, type: number) => {
     const newArr = {
       ...userInfo,
@@ -48,6 +57,13 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
       },
     };
     setUserInfo(newArr);
+  };
+
+  //Hide/show password
+  const togglePasswordVisibility = (type: number) => {
+    if (type === 1) setIsOldPassWordVisible(!isOldPassWordVisible);
+    if (type === 2) setisNewPassWordVisible(!isNewPassWordVisible);
+    if (type === 3) setisNewPassWordVisibleRef(!isNewPassWordVisibleRef);
   };
 
   //Get User Data
@@ -67,8 +83,8 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
   }, []);
 
   // Button event
-  // Submit event
-  const handleSubmit = async () => {
+  // User update event
+  const handleUpdateUser = async () => {
     if (
       !userInfo?.user?.fullName ||
       !userInfo?.user?.department ||
@@ -130,6 +146,52 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
       } catch (e) {
         console.log('error:', e);
       }
+    }
+  };
+
+  //Password update event
+  const handleUpdatePassword = async () => {
+    if (!oldPassword || !newPassword || !newPasswordRef) {
+      Alert.alert('Please fill in all fields');
+      return;
+    }
+    if (newPassword !== newPasswordRef) {
+      Alert.alert('New password and confirm password need to match');
+      return;
+    }
+    try {
+      const response = await fetch(
+        'https://pos.foxai.com.vn:8123/api/Auth/changePassword',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userInfo?.user?.accessToken}`,
+          },
+          body: JSON.stringify({
+            id: userInfo?.user?.id,
+            oldPassword: oldPassword,
+            password: newPassword,
+            refPassword: newPasswordRef,
+          }),
+        },
+      );
+      console.log('resssssssssss==========================', response);
+
+      const data = await response.json();
+      if (response.status === 200) {
+        Alert.alert('Password changed, please login again');
+        await AsyncStorage.setItem('userToken', JSON.stringify(userInfo));
+        navigation.navigate('Login');
+      } else {
+        Alert.alert(
+          'Faild to change password: ',
+          data.status,
+          data?.message || ' Please try again latter',
+        );
+      }
+    } catch (e) {
+      console.log('erro', e);
     }
   };
 
@@ -214,28 +276,111 @@ const UserInfo: React.FC<UserInfoScreenProps> = ({route, navigation}) => {
               {display: checked === 'second' ? 'flex' : 'none'},
             ]}>
             <View style={styles.mainContent}>
-              <Text style={styles.lableStyle}>Old Password</Text>
-              <TextInput placeholder="Old Password" style={styles.textInput} />
+              <View style={styles.passwordField}>
+                <Text style={styles.lableStyle}>Old Password</Text>
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    placeholder="Old Password"
+                    style={styles.textInput}
+                    onChangeText={setOldPassword}
+                    secureTextEntry={!isOldPassWordVisible}
+                  />
+                  <TouchableOpacity
+                    onPress={() => togglePasswordVisibility(1)}
+                    style={styles.eyeIcon}>
+                    <Image
+                      source={
+                        isOldPassWordVisible
+                          ? require('../../assests/icons/hide.png')
+                          : require('../../assests/icons/view.png')
+                      }
+                      style={styles.eyeIconImage}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
             <View style={styles.mainContent}>
-              <Text style={styles.lableStyle}>New Password</Text>
-              <TextInput placeholder="New Password" style={styles.textInput} />
-              <Text style={styles.lableStyle}>Confirm Password</Text>
-              <TextInput
-                placeholder="Confirm Password"
-                style={styles.textInput}
-              />
+              <View style={styles.passwordField}>
+                <Text style={styles.lableStyle}>New Password</Text>
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    placeholder="New Password"
+                    style={styles.textInput}
+                    onChangeText={setNewPassword}
+                    secureTextEntry={!isNewPassWordVisible}
+                  />
+                  <TouchableOpacity
+                    onPress={() => togglePasswordVisibility(2)}
+                    style={styles.eyeIcon}>
+                    <Image
+                      source={
+                        isNewPassWordVisible
+                          ? require('../../assests/icons/hide.png')
+                          : require('../../assests/icons/view.png')
+                      }
+                      style={styles.eyeIconImage}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.passwordField}>
+                <Text style={styles.lableStyle}>Confirm Password</Text>
+                <View style={styles.inputWrapper}>
+                  <TextInput
+                    placeholder="Confirm Password"
+                    style={styles.textInput}
+                    onChangeText={setNewPasswordRef}
+                    secureTextEntry={!isNewPassWordVisibleRef}
+                  />
+                  <TouchableOpacity
+                    onPress={() => togglePasswordVisibility(3)}
+                    style={styles.eyeIcon}>
+                    <Image
+                      source={
+                        isNewPassWordVisibleRef
+                          ? require('../../assests/icons/hide.png')
+                          : require('../../assests/icons/view.png')
+                      }
+                      style={styles.eyeIconImage}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </View>
         </View>
       </View>
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.button} onPress={handleGoBack}>
-          <Text style={styles.buttonText}>Quay lại</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Xác nhận</Text>
-        </TouchableOpacity>
+      <View>
+        <View>
+          <View
+            style={[
+              styles.footer,
+              {display: checked === 'first' ? 'flex' : 'none'},
+            ]}>
+            <TouchableOpacity style={styles.button} onPress={handleGoBack}>
+              <Text style={styles.buttonText}>Quay lại</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleUpdateUser}>
+              <Text style={styles.buttonText}>Xác nhận</Text>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={[
+              styles.footer,
+              {display: checked === 'second' ? 'flex' : 'none'},
+            ]}>
+            <TouchableOpacity style={styles.button} onPress={handleGoBack}>
+              <Text style={styles.buttonText}>Quay lại</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleUpdatePassword}>
+              <Text style={styles.buttonText}>Xác nhận</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </View>
   );

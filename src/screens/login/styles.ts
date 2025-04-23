@@ -5,7 +5,6 @@ const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center',
       alignContent: 'center',
-      // padding: 20,
       alignItems: 'center',
       backgroundColor: 'white',
       bottom: 50,
@@ -23,14 +22,11 @@ const styles = StyleSheet.create({
       color: 'black',
       fontWeight: 'bold',
       textAlign: 'center',
-      // marginLeft: 70, // Căn trái cho văn bản
     },
     logo: {
       width: '100%', // Kích thước logo
       height: 100, // Kích thước logo
       resizeMode: 'contain', // Đảm bảo logo không bị méo
-      // position: 'absolute',
-      // left: 20, // Căn trái
       marginBottom: 20,
     },
     formContainer: {
@@ -39,7 +35,6 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       paddingHorizontal: 20,
       backgroundColor: '#f8f8f8',
-      // paddingBottom: 30,
     },
     input: {
       justifyContent: 'center',
@@ -59,7 +54,6 @@ const styles = StyleSheet.create({
     },
     eyeIcon: {
       position: 'absolute',
-      // top: 10,
       resizeMode: 'contain', // Đảm bảo logo không bị méo
       zIndex: 1,
       width: 30, // Kích thước logo

@@ -12,7 +12,6 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import {ScrollView} from 'react-native-gesture-handler';
 
 type selectedItem = {
   productCode: string;
@@ -40,13 +39,8 @@ interface WorkOrderScreenProps {
 
 const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
   const [data, setData] = useState<any[]>([]);
-  const [docEntry, setDocEntry] = useState();
-  const [tranferId, setTranferId] = useState();
   const [selected, setSelected] = useState<selectedItem | undefined | null>();
-  const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<any>();
-
-  const [selectedLanguage, setSelectedLanguage] = useState();
 
   const getData = async () => {
     try {
@@ -57,7 +51,7 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
         setUserInfo(JSON.parse(jsonValue));
       }
     } catch (e) {
-      // error reading value
+      console.log('error', e);
     }
   };
 
@@ -66,7 +60,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
   }, []);
   const fetchDataApi = async (token: string) => {
     console.log('token===>', token);
-
     try {
       const response = await fetch(
         'https://pos.foxai.com.vn:8123/api/Production/getProduction',
@@ -78,23 +71,14 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
           },
         },
       );
-
       const text = await response.text();
-
-      // console.log(' Raw response:', text);
-
-      // console.log('responess1111111111111111111111111111', response);
-
       if (!response.ok) {
         console.log('responseeeeeeeeeeeeeeee', response);
-
         console.error(' API lỗi:', response.status);
         return;
       }
-
       const json = JSON.parse(text); // Tự parse sau khi kiểm tra raw
       console.log(' Parsed JSON:', json);
-
       const mappedData = json.items.map((item: any) => ({
         productCode: item.proCode,
         itemCode: item.itemCode,
@@ -102,12 +86,10 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
         docEntry: item.docEntry,
         tranferId: item.tranferId,
       }));
-
       setData(mappedData);
     } catch (error) {
       console.error(' Lỗi khi gọi API:', error);
     } finally {
-      setLoading(false);
     }
   };
   useEffect(() => {
@@ -115,7 +97,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       fetchDataApi(userInfo?.accessToken);
     }
   }, [userInfo]);
-
   // Logout event
   const handleLogout = async () => {
     try {
@@ -134,7 +115,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       console.error('Error logging out:', error);
     }
   };
-
   // Menu event
   const handleMenu = () => {
     if (selected) {
@@ -144,7 +124,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
       });
     }
   };
-
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -152,7 +131,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
         <Text style={styles.headerText}>Work Order</Text>
         <View style={styles.logo} />
       </View>
-
       <Text
         style={[
           styles.labelText,
@@ -168,7 +146,6 @@ const WorkOrderScreen: React.FC<WorkOrderScreenProps> = ({navigation}) => {
                 const selectedProduct = data.find(
                   item => item.productCode === itemValue,
                 );
-
                 if (selectedProduct) {
                   setSelected(selectedProduct); // Store the full object
                   console.log('selectedProduct', selectedProduct);

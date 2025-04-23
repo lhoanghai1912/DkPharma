@@ -82,26 +82,37 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     moment(docDate).format('DD/MM/YYYY'),
   );
   const [data, setData] = useState<{
+    creator: any;
+    productionCode: any;
+    itemName: any;
+    whsCode: any;
+    itemCode: any;
     items: MaterialItem[];
     apP_WTQ1?: MaterialItem[];
     status?: string;
-  }>({items: []}); // Added optional status property
+  }>({
+    creator: '',
+    productionCode: '',
+    itemName: '',
+    whsCode: '',
+    itemCode: '',
+    items: [],
+    apP_WTQ1: undefined,
+    status: undefined,
+  }); // Added optional status property
 
   const docdDateAPI = moment(selectedDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
 
   // vision camera react native
   const {hasPermission, requestPermission} = useCameraPermission();
   const [isActive, setIsActive] = useState(false); // State for camera activation
-  // const {hasPermission, requestPermission} = useMicrophonePermission();
   const device = useCameraDevice('back');
 
-  console.log('đã được cấp quyền chưa ?', hasPermission);
   //Button Event
   //QR
   const handleQR = () => {
     requestPermission();
     if (hasPermission == true) {
-      console.log('Request Permission Accpected');
       setIsActive(true);
       if (device == null) {
         console.log('Device not found');
@@ -138,7 +149,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         const data = JSON.parse(jsonValue);
       }
     } catch (e) {
-      console.log('erro0000000000000000000000000000', e);
+      console.log('erro', e);
     }
   };
 
@@ -164,9 +175,6 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   }, []);
 
   const fetchData = async (token: string) => {
-    console.log('tokennnnnnnnnnnnnn1111', token);
-    console.log(tranferId, ' ', docEntry, ' ', selectedDate);
-
     try {
       const res = await axios.get<MaterialItem[]>(
         `https://pos.foxai.com.vn:8123/api/Production/getTranferRequest${selectedTranferId}?DocEntry=${docEntry}&docDate=${docdDateAPI}`,
@@ -177,10 +185,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           },
         },
       );
-
-      console.log('ressssssssssssssssssss', res);
-
-      console.log('2', res);
+      console.log('data', res);
       if ((res.status = 200)) {
         setData(res.data.items);
       } else {
@@ -200,7 +205,6 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   }, [docdDateAPI, selectedTranferId, userInfo]);
 
   const renderItem = ({item, index}: any) => {
-    // console.log('33333333333333333333', item);
     return (
       <View style={styles.content_row}>
         <Text style={[styles.col_STT]}>{index + 1}</Text>
@@ -253,13 +257,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
             <Calendar
               style={styles.modal}
               onDayPress={day => {
-                // const formattedDate = moment(day.dateString).format(
-                //   'DD/MM/YYYY',
-                // const day1 = moment(formattedDate,'DD/MM/YYYY').format('YYYY-MM-DD'),
                 setDocDate(day.dateString);
-
-                // setDocDate(formattedDate);
-                Alert.alert('docDate:', docDate);
               }}
               markedDates={{
                 [docDate]: {
@@ -273,10 +271,8 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
-                  Alert.alert('abc', docDate),
-                    setselectedDate(moment(docDate).format('DD/MM/YYYY')),
+                  setselectedDate(moment(docDate).format('DD/MM/YYYY')),
                     setModalVisible(false);
-                  // setselectedDate = docDate,
                 }}>
                 <Text style={styles.textform}>Xác nhận</Text>
               </TouchableOpacity>
@@ -323,10 +319,11 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
                   setSelectedTranferId(itemValue)
                 }>
                 {tranferId.map((item: any) => {
-                  return <Picker.Item label={[item]} value={item} />;
+                  return (
+                    <Picker.Item label={item} value={item} key={tranferId} />
+                  );
                 })}
               </Picker>
-
               <TextInput editable={false} style={styles.item_topContainer}>
                 {`Mã thành phẩm: ${data.itemCode}`}
               </TextInput>
@@ -383,7 +380,6 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           <Text style={styles.textform}>Đồng bộ</Text>
         </TouchableOpacity>
       </View>
-
       {device && (
         <Camera
           style={[

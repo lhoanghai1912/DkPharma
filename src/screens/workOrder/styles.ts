@@ -3,8 +3,6 @@ import {StyleSheet} from 'react-native';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'flex-start',
-    // alignItems: 'center',
     backgroundColor: '#f2f2f2',
   },
   header: {
@@ -17,7 +15,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 100,
-    // marginBottom: 20,
     resizeMode: 'contain', // Adjust the image size as needed
     alignSelf: 'flex-start',
   },
@@ -35,11 +32,9 @@ const styles = StyleSheet.create({
   body: {
     justifyContent: 'center',
     alignItems: 'center',
-    // backgroundColor: 'red',
     marginBottom: 20,
   },
   box: {
-    // flex: 1,
     justifyContent: 'space-between',
     alignContent: 'center',
     height: 400,
@@ -84,9 +79,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'center',
     height: 100,
-    // backgroundColor: '#dcdcdc',
-    // paddingHorizontal: 10,
-    // paddingVertical: 10,
   },
   button: {
     height: 50,

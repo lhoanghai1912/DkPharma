@@ -7,7 +7,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   Image,
   Alert,
 } from 'react-native';
@@ -33,14 +32,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [username, setUsername] = useState<string>('Admin');
   const [password, setPassword] = useState<string>('1234');
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-  
-
   const handleLogin = async () => {
     if (!username || !password) {
       Alert.alert('Erro', 'Please enter both username and password');
       return;
     }
-
     try {
       // TODO: Call API login ở đây
       const response = await fetch(
@@ -78,11 +74,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
       Alert.alert('Error', 'Something went wrong. Please try again late111r.');
     }
   };
-
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
-
   return (
     <View style={styles.container}>
       <Image
@@ -97,7 +91,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
           value={username}
           onChangeText={setUsername}
         />
-
         {/* Password input with eye icon */}
         <View style={styles.passwordContainer}>
           <TextInput
@@ -107,7 +100,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             onChangeText={setPassword}
             secureTextEntry={!isPasswordVisible}
           />
-
           {/* Eye icon to toggle password visibility */}
           <TouchableOpacity onPress={togglePasswordVisibility}>
             <Image
@@ -129,5 +121,4 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     </View>
   );
 };
-
 export default LoginScreen;

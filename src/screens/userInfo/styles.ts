@@ -90,31 +90,52 @@ const styles = StyleSheet.create({
     },
     
 
-    //change Password Group
+    // Password Group
+    passwordField:{
+      
+      justifyContent:'center',
+      alignContent:'center',
+    },
+
+    inputWrapper: {
+      position: 'relative',
+      width: '100%',
+
+    },
+
     changePassword:{
       flex:1,
       flexDirection:'row',
     },
 
+    eyeIcon: {
+      position: 'absolute',
+      right: 10,
+      top: '25%',
+      transform: [{ translateY: -12 }], // Căn giữa biểu tượng mắt
+      zIndex: 1,
+    },  
     
+    eyeIconImage: {
+      width: 24,
+      height: 24,
+    },
     //Footer Group
     footer:{
-      // flex:1,
-      height:'auto',
+      flex:1,
       flexDirection:'row', 
       width:'auto',
       alignItems:'flex-end',
       justifyContent:'space-around',
-      padding:30,
-      alignContent:"flex-end",
-      backgroundColor:'white',
+      padding:0,
+      alignContent:"center",
       marginBottom:50,
     },
     
     //Share Group
     lableStyle:{
       fontSize: 24,
-      marginBottom:5, 
+      marginBottom:5,
       color: 'black', 
       fontWeight:400,   
     },

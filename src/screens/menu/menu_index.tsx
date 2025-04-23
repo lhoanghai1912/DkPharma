@@ -4,17 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
 import styles from './styles';
 
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  Button,
-} from 'react-native';
-import {maxWorkers} from '../../../metro.config';
-
+import {View, Text, TextInput, TouchableOpacity, Image} from 'react-native';
 type RootStackParamList = {
   Menu: undefined;
   WorkOrder: undefined;
@@ -22,41 +12,33 @@ type RootStackParamList = {
   Login: undefined;
   UserInfo: {docEntry: string; tranferId: string};
 };
-
 type MenuScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Menu'>;
-
 interface MenuScreenProps {
   navigation: MenuScreenNavigationProp;
   route: any;
 }
-
 const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
   const {docEntry, tranferId} = route.params;
   console.log(docEntry, '     ', tranferId);
-
   const [userInfo, setUserInfo] = useState<any>();
-
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('userToken');
       console.log('jsonValuejsonValue', jsonValue);
-
       if (jsonValue) {
         setUserInfo(JSON.parse(jsonValue));
       }
     } catch (e) {
-      // error reading value
+      console.log('error', e);
     }
   };
   console.log(
     'userinfo111111111111111111111111111111111111111111',
     userInfo?.user,
   );
-
   useEffect(() => {
     getData();
   }, []);
-
   //Button event
   // Transfer event
   const handleTransfer = async () => {
@@ -69,7 +51,6 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
       console.error('Error navigating to Transfer screen:', error);
     }
   };
-
   // UserInfo Event
   const handleUserInfo = async () => {
     try {
@@ -78,7 +59,6 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
       console.error('Error get userInfo:', error);
     }
   };
-
   // Logout event
   const handleLogout = async () => {
     try {
@@ -97,10 +77,9 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
       console.error('Error logging out:', error);
     }
   };
-
   return (
     <View style={styles.container}>
-      //Header
+      {/* Header */}
       <View style={styles.header}>
         <Image
           source={require('../../assests/images/logo.png')}
@@ -114,17 +93,17 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
           />
         </TouchableOpacity>
       </View>
-      //Body
+      {/* Body */}
       <View style={styles.container}>
-        //Top Body
+        {/* Top Body */}
         <Text
           style={[
             styles.labelText,
             {margin: 30},
           ]}>{`Welcome, ${userInfo?.user?.fullName} `}</Text>
-        //Main Body
+        {/* Main Body */}
         <View style={styles.mainContainer}>
-          //Left Menu
+          {/* Left Menu */}
           <View style={styles.menuContainer}>
             <View style={styles.menu}>
               <TouchableOpacity
@@ -134,65 +113,58 @@ const MenuScreen: React.FC<MenuScreenProps> = ({route, navigation}) => {
                   Kiểm tra nguyên vật liệu đầu vào
                 </Text>
               </TouchableOpacity>
-
               <TouchableOpacity style={styles.button} onPress={handleTransfer}>
-                <Text style={styles.buttonText}>Xuất kho sản xuất</Text>/
+                <Text style={styles.buttonText}>Xuất kho sản xuất</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Nhập kho bán thành phẩm</Text>/
+                <Text style={styles.buttonText}>Nhập kho bán thành phẩm</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Nhập kho thành phẩm</Text>/
+                <Text style={styles.buttonText}>Nhập kho thành phẩm</Text>
               </TouchableOpacity>
             </View>
-            //Right Menu
+            {/* Right Menu */}
             <View style={styles.menu}>
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Biểu mẫu pha chế</Text>/
+                <Text style={styles.buttonText}>Biểu mẫu pha chế</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Trả lại NVL</Text>/
+                <Text style={styles.buttonText}>Trả lại NVL</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Nhập điều chỉnh</Text>/
+                <Text style={styles.buttonText}>Nhập điều chỉnh</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => console.log('Button pressed')}>
-                <Text style={styles.buttonText}>Xuất điều chỉnh</Text>/
+                <Text style={styles.buttonText}>Xuất điều chỉnh</Text>
               </TouchableOpacity>
             </View>
           </View>
-          //Logout button
+          {/* Logout button */}
           <TouchableOpacity
             style={[styles.button]}
             onPress={() => console.log('Button pressed')}>
-            <Text style={styles.buttonText}>Báo cáo</Text>/
+            <Text style={styles.buttonText}>Báo cáo</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, {width: 300}]}
             onPress={handleLogout}>
-            <Text style={styles.buttonText}>Đăng xuất</Text>/
+            <Text style={styles.buttonText}>Đăng xuất</Text>
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );
 };
-
 export default MenuScreen;
