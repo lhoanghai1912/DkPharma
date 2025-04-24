@@ -8,11 +8,9 @@ import {
   Alert,
 } from 'react-native';
 import styles from './styles';
-
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RadioButton} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icons from '../../contants/iconContant';
 
 type RootStackParamList = {
   UserInfo: undefined;

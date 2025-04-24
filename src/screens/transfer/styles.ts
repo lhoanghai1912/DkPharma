@@ -80,9 +80,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   picker: {
-    // flex: 1,
     width: 300,
-    borderColor: 'red',
     borderWidth: 10,
     borderRadius: 10,
   },
@@ -151,8 +149,8 @@ const styles = StyleSheet.create({
     width:30,
     },
   logo: {
-    width: 100,
-    height: 100,
+    width: 30,
+    height: 30,
     resizeMode: 'contain', // Adjust the image size as needed
     alignSelf: 'flex-start',
   },
@@ -160,8 +158,11 @@ const styles = StyleSheet.create({
     width: 40,
     textAlign: 'center',
     justifyContent: 'center',
+    alignItems:'center',
+    alignContent:'center',
     borderRightWidth: 1,
-    borderLeftWidth:1,
+    paddingVertical:5,
+
   },
   col_QR: {
     textAlign: 'center',

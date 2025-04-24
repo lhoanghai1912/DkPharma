@@ -5,12 +5,13 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import axios from 'axios';
 import moment from 'moment';
 import styles from './styles';
+import Icons from '../../contants/iconContant';
+
 import {Calendar, LocaleConfig} from 'react-native-calendars';
 import {
   Camera,
   useCameraDevice,
   useCameraPermission,
-  useMicrophonePermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
 
@@ -48,12 +49,6 @@ import {
   StyleSheet,
 } from 'react-native';
 
-type selectedItem = {
-  tranferId: string;
-  docEntry: string;
-  docDate: string;
-};
-
 type RootStackParamList = {
   Menu: undefined;
   Transfer: undefined;
@@ -76,9 +71,23 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     moment(new Date()).format('YYYY-MM-DD'),
   );
   const [userInfo, setUserInfo] = useState<any>();
+  const [dataAdded, setDataAdded] = useState<
+    Array<{
+      stt: number;
+      itemCode: string | undefined;
+      itemName: string | undefined;
+      batchNumber: number | undefined;
+      quantity: number | undefined;
+      uomCode: string | undefined;
+      note: string | undefined;
+    }>
+  >([]);
+  const [qrData, setQrData] = useState<any>();
+  const [formattedValue, setFormattedValue] = useState<any>();
   const [isBlocked, setIsBlocked] = useState(true);
-  const [isVisible, setIsVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [quantity, setQuantity] = useState();
+  const [note, setNote] = useState();
   const [selectedDate, setselectedDate] = useState(
     moment(docDate).format('DD/MM/YYYY'),
   );
@@ -89,21 +98,46 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
   }>({items: []}); // Added optional status property
 
   const docdDateAPI = moment(selectedDate, 'DD/MM/YYYY').format('YYYY-MM-DD');
-
   // vision camera react native
   const {hasPermission, requestPermission} = useCameraPermission();
-  const [isActive, setIsActive] = useState(false); // State for camera activation
-  // const {hasPermission, requestPermission} = useMicrophonePermission();
+  const [isCameraOn, setIsCameraOn] = useState(false); // State for camera activation
+  const [isWeighOn, setIsWeighOn] = useState(false); // State for camera activation
+  const [selectedItem, setSelectedItem] = useState<{
+    itemCode: string;
+    itemName: string;
+    batchNumber: number;
+    uomCode: string;
+  } | null>(null);
   const device = useCameraDevice('back');
 
-  console.log('đã được cấp quyền chưa ?', hasPermission);
-  //Button Event
+  //Add item event
+  const handleAddItem = () => {
+    // if (!quantity && dataAdded.length > 1) {
+    //   Alert.alert('Please fill the quantity');
+    //   return;
+    // }
+    const newItemAdded = {
+      stt: dataAdded.length + 1,
+      itemCode: selectedItem?.itemCode,
+      itemName: selectedItem?.itemName,
+      batchNumber: selectedItem?.batchNumber,
+      quantity: quantity,
+      uomCode: selectedItem?.uomCode,
+      note: note,
+    };
+    setDataAdded([...dataAdded, newItemAdded]);
+    setQuantity('');
+    setNote('');
+  };
+  console.log('dataaddddd==============', dataAdded);
+
   //QR
-  const handleQR = () => {
+  const handleQR = (item: MaterialItem) => {
     requestPermission();
     if (hasPermission == true) {
       console.log('Request Permission Accpected');
-      setIsActive(true);
+      setIsCameraOn(false);
+      setIsWeighOn(true);
       if (device == null) {
         console.log('Device not found');
         return (
@@ -116,34 +150,42 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
     } else {
       console.log('Request Permission Denied');
     }
+    setSelectedItem({
+      itemCode: item.itemCode,
+      itemName: item.itemName,
+      batchNumber: item.batchNumber,
+      uomCode: item.uomCode,
+    });
+
+    const formattedValue = `"${item.itemCode}' '${item.batchNumber}"`;
+    setFormattedValue(formattedValue);
+    console.log('formattedValue to compare with QR', formattedValue);
   };
+  console.log('ăhdowodawohdawhdoawhodawodoawhdoawhoda', selectedItem);
 
   //Go Back event
   const handleGoBack = () => {
     console.log('goback pressed');
-    setIsActive(!isActive);
+    setIsCameraOn(!isCameraOn);
     setIsBlocked(!isBlocked);
   };
-  if (isActive === true) {
-    console.log('camera dang bat');
-  } else {
-    console.log('camera phai tat');
-  }
-  console.log('trang thai QR text', isActive);
 
   //Scan QR
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
     onCodeScanned: (codes: any) => {
-      console.log(`Scanned ${codes.value} codes!`);
+      console.log('qrData from scan', codes[0]?.value);
+      setQrData(codes[0]?.value); // Lưu giá trị mã QR vào state
+      if (qrData === formattedValue) {
+        console.log('Đúng mã QR');
+        setIsCameraOn(false); // Tắt camera sau khi quét mã
+        setIsWeighOn(true);
+      } else;
+      {
+        alert('Sai mã QR, vui lòng thử lại!');
+      }
     },
   });
-
-  //View-Hide
-  const toggleVisibility = () => {
-    setIsVisible(!isVisible); // Đổi trạng thái khi nhấn nút
-    console.log('trang thai an hien: ', isVisible);
-  };
 
   //API
   const getDataFromAsyncStorage = async () => {
@@ -156,7 +198,6 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
       console.log('erro0000000000000000000000000000', e);
     }
   };
-
   useEffect(() => {
     getDataFromAsyncStorage();
   }, []);
@@ -225,7 +266,9 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         <Text style={styles.content_cell}>
           {moment(item.expDate).format('L')}
         </Text>
-        <TouchableOpacity style={styles.content_cell} onPress={handleQR}>
+        <TouchableOpacity
+          style={styles.content_cell}
+          onPress={() => handleQR(item)}>
           <Image
             source={require('../../assests/icons/qr.png')}
             style={styles.img}
@@ -236,7 +279,9 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           editable={isBlocked ? false : true}
           style={[
             styles.content_cell,
-            {backgroundColor: isBlocked ? 'grey' : 'white'},
+            {
+              backgroundColor: isBlocked ? 'grey' : 'white',
+            },
           ]}>
           {item.quantity}
         </TextInput>
@@ -254,10 +299,36 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
       </View>
     );
   };
+
+  const renderAddItem = ({item}: any) => {
+    console.log('itemmm=========================', item);
+
+    return (
+      <View style={[styles.content_row, {backgroundColor: 'red'}]}>
+        <Text style={[styles.col_STT]}>{item.stt + 1}</Text>
+        <Text style={styles.content_cell}>{item.itemCode}</Text>
+        <Text style={styles.content_cell}>{item.itemName}</Text>
+        <Text style={styles.content_cell}>{item.batchNumber}</Text>
+        <TextInput style={[styles.content_cell, {}]}>So luong can</TextInput>
+        <Text style={styles.content_cell}>{item.uomCode}</Text>
+        <TextInput
+          style={[
+            styles.content_cell,
+            {backgroundColor: isBlocked ? 'grey' : 'white'},
+          ]}>
+          {item.note}
+        </TextInput>
+      </View>
+    );
+  };
   return (
     <View style={styles.container}>
       <View
-        style={[{display: isActive ? 'none' : 'flex', flex: isActive ? 0 : 1}]}>
+        style={[
+          {display: isCameraOn ? 'none' : 'flex', flex: isCameraOn ? 0 : 1},
+          {display: isWeighOn ? 'none' : 'flex', flex: isWeighOn ? 0 : 1},
+        ]}>
+        {/* style={[{display: 'none', flex: 1}]}> */}
         {/* //Header */}
         <View style={styles.header}>
           <Image
@@ -348,7 +419,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
                     setSelectedTranferId(itemValue)
                   }>
                   {tranferId.map((item: any) => {
-                    return <Picker.Item label={[item]} value={item} />;
+                    return <Picker.Item label={item} value={item} />;
                   })}
                 </Picker>
 
@@ -388,7 +459,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
             <FlatList
               data={data.apP_WTQ1 || data.items} // Fallback to items if apP_WTQ1 is undefined
               renderItem={renderItem}
-              keyExtractor={item => item.itemCode.toString()}
+              keyExtractor={item => item.itemCode}
               style={[
                 {
                   flex: 1,
@@ -414,16 +485,18 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
         </View>
       </View>
       <View
-        style={[{display: isActive ? 'flex' : 'none', flex: isActive ? 1 : 0}]}>
+        style={[
+          {display: isCameraOn ? 'flex' : 'none', flex: isCameraOn ? 1 : 0},
+        ]}>
         <View style={{flex: 1}}>
           {device && (
             <Camera
               style={[
                 StyleSheet.absoluteFill,
-                {display: isActive ? 'flex' : 'none', flex: 1},
+                {display: isCameraOn ? 'flex' : 'none', flex: 1},
               ]}
               device={device}
-              isActive={isActive}
+              isActive={isCameraOn}
               codeScanner={codeScanner}
             />
           )}
@@ -433,7 +506,7 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
             styles.button,
             // {zIndex: 1},
             {
-              display: isActive ? 'flex' : 'none',
+              display: isCameraOn ? 'flex' : 'none',
               width: 'auto',
               alignItems: 'center',
             },
@@ -441,6 +514,69 @@ const TransferScreen: React.FC<TranferScreenProp> = ({route, navigation}) => {
           onPress={handleGoBack}>
           <Text>Back</Text>
         </TouchableOpacity>
+      </View>
+      <View
+        style={{
+          display: isWeighOn ? 'flex' : 'none',
+          flex: 1,
+          justifyContent: 'center',
+        }}>
+        {/* Header */}
+        <View
+          style={[
+            styles.header,
+            {
+              backgroundColor: 'green',
+              alignContent: 'center',
+              justifyContent: 'space-between',
+              paddingVertical: 10,
+            },
+          ]}>
+          <TouchableOpacity></TouchableOpacity>
+          <Text style={styles.headerText_header}>
+            Phiếu cân chi tiết theo mã hàng
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              handleAddItem();
+            }}>
+            <Image source={Icons.add_list} style={[styles.logo]}></Image>
+          </TouchableOpacity>
+        </View>
+        {/* Body */}
+        <View>
+          <View
+            style={[
+              styles.content_row,
+              {display: modalVisible ? 'none' : 'flex'},
+            ]}>
+            <Text style={[styles.col_STT]}>STT</Text>
+            <Text style={styles.content_cell}>Mã NVL</Text>
+            <Text style={styles.content_cell}>Tên NVL</Text>
+            <Text style={styles.content_cell}>Số lô</Text>
+            <TextInput editable={false} style={styles.content_cell}>
+              SL xuất thực tế
+            </TextInput>
+            <Text style={styles.content_cell}>ĐVT</Text>
+            <TextInput editable={false} style={styles.content_cell}>
+              Ghi chú
+            </TextInput>
+          </View>
+
+          <FlatList
+            data={dataAdded} // Fallback to items if apP_WTQ1 is undefined
+            renderItem={renderAddItem}
+            keyExtractor={item => item.stt.toString()}
+            style={[
+              {
+                flex: 1,
+                // width: '100%',
+                backgroundColor: 'red',
+              },
+            ]}
+          />
+        </View>
+        {/* Footer */}
       </View>
     </View>
   );

@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {Picker} from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackNavigationProp} from '@react-navigation/stack';
 import styles from './styles';
